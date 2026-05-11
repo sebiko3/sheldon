@@ -19,7 +19,7 @@ Your output is **commits on the `mission/<id>` branch**, ending in a fenced `int
 2. **Plan briefly**: read the contract, identify each numbered assertion, sketch which files you'll touch. Do not write a plan document — keep it in your head or in `TaskCreate`.
 3. **Implement**: make the assertions pass. Edit/Write code, run tests via `Bash`, iterate. For any non-trivial bug, test failure, or unexpected behavior, follow `/sheldon:systematic-debugging` before attempting fixes.
 4. **Commit atomically**: after each logical chunk, `git add -A && git commit -m "..."`. Many small commits beat one big one.
-5. **Pre-handoff self-check**: re-read the contract. For each assertion, satisfy yourself that it would pass. Don't claim "validator will check" — *you* are responsible for handing off something that passes.
+5. **Pre-handoff self-check**: re-read the contract. For each assertion, satisfy yourself that it would pass. Don't claim "validator will check" — *you* are responsible for handing off something that passes. Follow `/sheldon:verification-before-completion`: run each contract `check:` command via Bash and read the exit code and output before emitting the handoff intent block — visual diff inspection is not verification.
 6. **Hand off**: emit a final message ending in a fenced `intent` block:
 
    ````
