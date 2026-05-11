@@ -60,6 +60,22 @@ For a step-by-step example of a full mission (happy path + rejection + contamina
 | `/sheldon:epic-list [--status=<status>]` | List all epics and their proposed issues. |
 | `/sheldon:epic-promote <epic_id> <issue_id>` | Promote one epic issue into a real mission (creates a mission in `planning` phase). |
 | `/sheldon:missions-report` | Print a one-screen health snapshot of the mission loop — phase breakdown, throughput, time-to-merge percentiles, rework + abort rate, recently merged. Pure stdlib Python; safe to run any time. |
+| `/sheldon:brain-recall [topic]` | Surface what Sheldon has learned about this project — conventions, lessons, agent improvements, and capability proposals from past missions. |
+| `/sheldon:brain-learn <mission_id>` | After a mission terminates (merge/abort/twice-fail), distill its contract + handoffs + validations into durable brain entries the next mission inherits. |
+| `/sheldon:brain-list` | Dump every active brain entry plus per-type counts; pointer to the human-readable digest at `.sheldon/brain/README.md`. |
+
+## The brain: how Sheldon learns
+
+Sheldon keeps a small persistent learning layer at `.sheldon/brain/` (per project, JSONL-backed). It stores four kinds of entries:
+
+- **Conventions** — project-specific facts (build tool, test runner, style rules, file layout).
+- **Lessons** — meta-rules distilled from past mission failures or near-misses (e.g., "quote contract YAML descriptions containing `: `").
+- **Capability proposals** — net-new skills/hooks/scripts/agents the brain has identified as worth shipping; consumed by the cowork loop.
+- **Agent improvements** — proposed tweaks to `agents/*.md` that would have prevented a prior defect. These never auto-apply; the Orchestrator promotes them into normal missions.
+
+The Orchestrator calls `brain_recall` before writing each contract and `/sheldon:brain-learn <id>` after each mission terminates. The Worker calls `brain_recall` before implementing. The Validator does NOT consult the brain — it validates strictly against the contract, so pass/fail stays mechanically reproducible.
+
+Tools exposed by the MCP server: `mcp__plugin_sheldon_missions__brain_observe`, `mcp__plugin_sheldon_missions__brain_recall`, `mcp__plugin_sheldon_missions__brain_list`. The brain is per-repo; `.sheldon/brain/entries.jsonl` is the source of truth, `.sheldon/brain/README.md` is a regenerated digest for humans.
 
 ## Epics: turning vague briefs into missions
 
@@ -86,6 +102,7 @@ You then promote any subset via `/sheldon:epic-promote <epic_id> <issue_id>`. Ea
 | `scripts/hooks/`             | Shell scripts invoked by the hook config |
 | `.missions/<id>/`            | Per-mission state files (state.json, contract.md, handoffs/, validations/, touched.list) |
 | `.epics/<id>/`               | Per-epic proposal files (epic.md with candidate sub-missions) |
+| `.sheldon/brain/`            | Persistent learning layer (entries.jsonl + regenerated README.md digest) |
 
 ## Platform
 

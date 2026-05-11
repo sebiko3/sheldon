@@ -20,6 +20,9 @@ import {
   handleEpicRead,
   handleEpicList,
   handleEpicPromoteIssue,
+  handleBrainObserve,
+  handleBrainRecall,
+  handleBrainList,
 } from "./tools.js";
 
 const server = new McpServer({
@@ -188,6 +191,35 @@ server.registerTool("epic_promote_issue", {
     goal: z.string().optional(),
   },
 }, async (args) => handleEpicPromoteIssue(args));
+
+server.registerTool("brain_observe", {
+  description:
+    "Record a learned fact in Sheldon's brain (`.sheldon/brain/entries.jsonl`). `type` is one of convention | lesson | proposal | agent-improvement. `topic` is a short tag for retrieval (e.g. \"yaml-frontmatter\", \"agent:worker\", \"tests\"). `text` is the rule/fact in one paragraph. `evidence` optionally points to the mission_id or commit that taught the lesson. `supersedes` optionally retires an older entry by id. Any role may call this; observations persist across missions and projects.",
+  inputSchema: {
+    type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]),
+    topic: z.string().min(1),
+    text: z.string().min(1),
+    evidence: z.string().optional(),
+    confidence: z.enum(["low", "medium", "high"]).optional(),
+    supersedes: z.string().optional(),
+  },
+}, async (args) => handleBrainObserve(args));
+
+server.registerTool("brain_recall", {
+  description:
+    "Retrieve relevant brain entries. Filter by `type` and/or `topic` (case-insensitive substring match across topic+text, multi-word AND). `limit` caps results. Returns entries newest-first with superseded ones already filtered out. Use this at the start of a mission to load project conventions and prior lessons.",
+  inputSchema: {
+    topic: z.string().optional(),
+    type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]).optional(),
+    limit: z.number().int().positive().optional(),
+  },
+}, async (args) => handleBrainRecall(args));
+
+server.registerTool("brain_list", {
+  description:
+    "Dump every active brain entry plus a per-type count summary. Use to audit what Sheldon has learned in this repo.",
+  inputSchema: {},
+}, async (args) => handleBrainList(args));
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

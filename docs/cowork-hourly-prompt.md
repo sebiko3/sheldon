@@ -42,6 +42,11 @@ to ship one net-new capability per run.
   (`planning`, `contract_review`, `in_progress`, `validating`, `needs_rework`).
 - `tail -100 docs/cowork-log.md` and full read of `docs/cowork-ideas.md`
   (your own persistent state across runs — create either file if missing).
+- `mcp__plugin_sheldon_missions__brain_recall` (no args) — Sheldon's brain
+  carries durable conventions, lessons, and `proposal`/`agent-improvement`
+  entries previous runs (or human users) recorded. Treat conventions and
+  lessons as binding context for the contract you write later; treat
+  `proposal` entries as a first-class candidate source in Step 2.
 
 Skip conditions (log one line, exit):
 - A mission is in any non-terminal phase → another run owns it.
@@ -78,6 +83,12 @@ You are looking for net-new value. Fair game, roughly in order of leverage:
      missions; a `dependency-impact-analyzer` worker variant.
   E. **New playbook docs** in `docs/` — only if the capability is procedural
      rather than executable (rare; prefer A–D).
+
+**Candidate sources, in priority order:**
+1. `mcp__plugin_sheldon_missions__brain_recall({ type: "proposal" })` — proposals the brain has accumulated. These are the highest signal because they came from real mission outcomes. Promote one of these before generating fresh ideas if any are present.
+2. `mcp__plugin_sheldon_missions__brain_recall({ type: "agent-improvement" })` — surfaced agent tweaks. If one matches a clear pattern in recent missions, ship it as a mission whose diff edits the relevant `agents/*.md`.
+3. `docs/cowork-ideas.md` `# Proposed` section.
+4. Fresh ideation from the menu above (A–E).
 
 For each candidate, sketch:
 - One-sentence value proposition.
@@ -126,6 +137,12 @@ clear those filters, STOP. Append a `skip  reason=no candidate` line to
 7. PASS → `mcp__plugin_sheldon_missions__merge`. FAIL → `reopen` with the
    validator's findings, re-spawn Worker once more, re-validate. If it
    fails twice, `abort` and log — do not loop further within this hour.
+8. **Teach the brain.** Whether the mission merged, aborted, or
+   twice-failed, run `/sheldon:brain-learn <mission_id>` as the last
+   substantive action of the run. Even a clean merge is allowed to
+   produce zero entries — what matters is that lessons from failures and
+   conventions newly discovered during implementation are captured before
+   the next hour starts. The brain is how Sheldon stops repeating itself.
 
 # Step 4 — Update persistent state
 

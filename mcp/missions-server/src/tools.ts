@@ -422,3 +422,39 @@ export async function handleDiff(input: z.infer<typeof diffInput>) {
   const diff = await diffSinceBase(state.branch, state.base_commit);
   return ok({ stat, diff_truncated: diff.length > 200_000, diff: diff.slice(0, 200_000) });
 }
+
+// ── brain ────────────────────────────────────────────────────────────────────
+// Sheldon's persistent learning layer. Append-only JSONL at .sheldon/brain/.
+// Any role may observe; the orchestrator should recall before planning.
+
+export const brainObserveInput = z.object({
+  type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]),
+  topic: z.string().min(1),
+  text: z.string().min(1),
+  evidence: z.string().optional(),
+  confidence: z.enum(["low", "medium", "high"]).optional(),
+  supersedes: z.string().optional(),
+});
+export async function handleBrainObserve(input: z.infer<typeof brainObserveInput>) {
+  const { observe, regenerateDigest } = await import("./brain.js");
+  const entry = observe(input);
+  regenerateDigest();
+  return ok({ ok: true, entry });
+}
+
+export const brainRecallInput = z.object({
+  topic: z.string().optional(),
+  type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]).optional(),
+  limit: z.number().int().positive().optional(),
+});
+export async function handleBrainRecall(input: z.infer<typeof brainRecallInput>) {
+  const { recall } = await import("./brain.js");
+  const entries = recall(input);
+  return ok({ count: entries.length, entries });
+}
+
+export const brainListInput = z.object({}).strict();
+export async function handleBrainList(_input: z.infer<typeof brainListInput>) {
+  const { recall, summarize } = await import("./brain.js");
+  return ok({ summary: summarize(), entries: recall() });
+}
