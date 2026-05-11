@@ -1,5 +1,6 @@
 ---
-description: Show status of a mission (or all missions if no id). Usage: /sheldon:mission-status [mission_id]
+description: Show status of a mission (or all missions if no id).
+argument-hint: "[mission_id]"
 ---
 
 # /sheldon:mission-status

@@ -1,5 +1,6 @@
 ---
-description: Approve a mission's validation contract and kick off the Worker→Validator loop. Usage: /sheldon:mission-approve [mission_id]. If no id given, picks the single mission currently in contract_review.
+description: Approve a mission's validation contract and kick off the Worker→Validator loop. If no id given, picks the single mission currently in contract_review.
+argument-hint: "[mission_id]"
 ---
 
 # /sheldon:mission-approve

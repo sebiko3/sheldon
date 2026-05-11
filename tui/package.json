@@ -1,0 +1,25 @@
+{
+  "name": "@sheldon/tui",
+  "version": "0.0.1",
+  "description": "Mission Control TUI — read-only observer for sheldon missions",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sheldon-tui": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "dependencies": {
+    "ink": "^5.0.1",
+    "react": "^18.3.1",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "typescript": "^5.7.2"
+  }
+}
