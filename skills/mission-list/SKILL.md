@@ -1,5 +1,6 @@
 ---
-description: List all missions, optionally filtered by phase. Usage: /sheldon:mission-list [phase]
+description: List all missions, optionally filtered by phase.
+argument-hint: "[phase]"
 ---
 
 # /sheldon:mission-list

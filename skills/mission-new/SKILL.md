@@ -1,5 +1,6 @@
 ---
-description: Start a new mission. Usage: /sheldon:mission-new <goal>. The Orchestrator will create the mission, branch off main, and write a validation contract for your approval.
+description: Start a new mission. The Orchestrator will create the mission, branch off main, and write a validation contract for your approval.
+argument-hint: "<goal>"
 ---
 
 # /sheldon:mission-new

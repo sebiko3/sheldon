@@ -1,5 +1,6 @@
 ---
-description: Abort an in-flight mission. Usage: /sheldon:mission-abort <mission_id> [reason]
+description: Abort an in-flight mission.
+argument-hint: "<mission_id> [reason]"
 ---
 
 # /sheldon:mission-abort
