@@ -47,19 +47,44 @@ Inside Claude Code:
 
 For a step-by-step example of a full mission (happy path + rejection + contamination + abort-with-cleanup), see **[docs/walkthrough.md](docs/walkthrough.md)**.
 
+## Slash commands
+
+| Command | What it does |
+|---------|--------------|
+| `/sheldon:mission-new <goal>` | Orchestrator creates a mission, branches `mission/<id>`, writes a validation contract, and waits for approval. |
+| `/sheldon:mission-approve [id]` | Approve the contract → spawn Worker → Validator loop → merge on pass / reopen on fail. |
+| `/sheldon:mission-status [id]` | Show mission phase, contract, handoffs, validation runs, and diff summary. |
+| `/sheldon:mission-list [--phase=<phase>]` | List all missions, optionally filtered by phase. |
+| `/sheldon:mission-abort <id> [reason] [--delete-branch]` | Cancel an in-flight mission (destructive; requires confirmation). |
+| `/sheldon:epic-new <brief>` | Decompose a vague brief into 3–7 candidate sub-missions; Epic Planner researches the codebase in parallel and writes `.epics/<id>/epic.md` for review. |
+| `/sheldon:epic-list [--status=<status>]` | List all epics and their proposed issues. |
+| `/sheldon:epic-promote <epic_id> <issue_id>` | Promote one epic issue into a real mission (creates a mission in `planning` phase). |
+
+## Epics: turning vague briefs into missions
+
+Not every request is a single well-scoped mission. When the work is exploratory — "look at this repo and pull useful ideas," "refactor this subsystem," "design feature X" — start with `/sheldon:epic-new <brief>`. The Epic Planner agent:
+
+1. Researches the codebase in parallel via Explore sub-agents.
+2. Decomposes the brief into 3–7 candidate sub-missions (each independently scope-able and assertable).
+3. Writes `.epics/<id>/epic.md` with rationale + acceptance sketches per issue.
+4. Returns the table for you to review.
+
+You then promote any subset via `/sheldon:epic-promote <epic_id> <issue_id>`. Each promoted issue becomes a normal mission in `planning` phase, ready for the standard Orchestrator → Worker → Validator loop. Issues you don't promote stay as `proposed` for later.
+
 ## Layout
 
 | Path | Purpose |
 |------|---------|
 | `.claude-plugin/plugin.json` | Plugin manifest |
 | `settings.json`              | Activates Orchestrator as the main thread |
-| `agents/`                    | Orchestrator/Worker/Validator definitions |
-| `skills/`                    | Slash commands (`/sheldon:mission-*`) |
-| `hooks/hooks.json`           | PreToolUse (contract immutability) + SubagentStop (state transitions) |
-| `.mcp.json`                  | Registers the missions MCP server |
-| `mcp/missions-server/`       | The shared-state MCP server (stdio, TypeScript) |
+| `agents/`                    | Orchestrator / Worker / Validator / Epic Planner definitions |
+| `skills/`                    | Slash commands (`/sheldon:mission-*`, `/sheldon:epic-*`) |
+| `hooks/hooks.json`           | PreToolUse (contract immutability) + PostToolUse (touched-file tracking) + SubagentStop (state-transition log) |
+| `mcp/missions-server/`       | The shared-state MCP server (stdio, TypeScript) — bundled by the plugin install |
 | `tui/`                       | Mission Control terminal UI (Slice 2) |
-| `scripts/hooks/`             | Shell scripts called by the hook config |
+| `scripts/hooks/`             | Shell scripts invoked by the hook config |
+| `.missions/<id>/`            | Per-mission state files (state.json, contract.md, handoffs/, validations/, touched.list) |
+| `.epics/<id>/`               | Per-epic proposal files (epic.md with candidate sub-missions) |
 
 ## Platform
 
@@ -74,3 +99,12 @@ macOS only. Uses `fs.watch` (APFS-friendly), POSIX paths, optional `osascript` n
 ## Auth note
 
 This plugin runs *inside* Claude Code, which uses the user's Claude Pro/Max/Team/Enterprise subscription for inference — ToS-compliant first-party use. Sheldon never handles OAuth tokens itself.
+
+## Credits
+
+- **Architectural inspiration**: the "Missions" architecture from Factory.ai's Alvoeiro talk — serial execution per feature, validation-contract-first, branch-per-mission, fresh worker contexts.
+- **Borrowed skills** (planned via [epic 01KRCE0QJX3QFT8MCS8B2R9YDE](.epics/01KRCE0QJX3QFT8MCS8B2R9YDE/epic.md)): the following skills are being ported into `skills/` from [obra/superpowers](https://github.com/obra/superpowers) (MIT-licensed). Per project convention, attribution is centralized here rather than in SKILL.md footers (trailing metadata inside a skill body competes with its instructions for the model's attention).
+  - `systematic-debugging` — adapted from [obra/superpowers/skills/systematic-debugging](https://github.com/obra/superpowers/tree/main/skills/systematic-debugging) (MIT).
+  - `verification-before-completion` — adapted from [obra/superpowers/skills/verification-before-completion](https://github.com/obra/superpowers/tree/main/skills/verification-before-completion) (MIT).
+  - `test-driven-development` — adapted from [obra/superpowers/skills/test-driven-development](https://github.com/obra/superpowers/tree/main/skills/test-driven-development) (MIT).
+  - `brainstorming` — adapted from [obra/superpowers/skills/brainstorming](https://github.com/obra/superpowers/tree/main/skills/brainstorming) (MIT).

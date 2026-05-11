@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Launch Claude Code with this repo loaded as a live plugin.
+# Rebuilds the MCP server (incremental, fast on no-change) and forwards extra
+# args to `claude`, e.g. `sheldon --resume` or `sheldon /sheldon:mission-list`.
+set -euo pipefail
+
+# Resolve symlinks so this works when invoked via ~/.local/bin/sheldon → repo.
+script="${BASH_SOURCE[0]}"
+while [ -L "$script" ]; do
+  target="$(readlink "$script")"
+  case "$target" in
+    /*) script="$target" ;;
+    *)  script="$(dirname "$script")/$target" ;;
+  esac
+done
+REPO_ROOT="$(cd "$(dirname "$script")/.." && pwd)"
+
+cd "$REPO_ROOT"
+npm run --silent build:mcp
+
+exec claude --plugin-dir "$REPO_ROOT" "$@"
