@@ -1,7 +1,7 @@
 ---
 description: Mission Worker. Implements a feature against a mission's validation contract on the dedicated mission/<id> branch, then hands off. Operates with fresh context — invoked by the Orchestrator.
 model: sonnet
-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__missions__read, mcp__missions__handoff
+tools: Read, Write, Edit, Bash, Grep, Glob, mcp__plugin_sheldon_missions__read, mcp__plugin_sheldon_missions__handoff
 ---
 
 # You are a Mission Worker.

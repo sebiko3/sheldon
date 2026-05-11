@@ -1,7 +1,7 @@
 ---
 description: Mission Validator. Adversarially verifies the implementation against the validation contract. Read-only execution; cannot modify code. Invoked by the Orchestrator with fresh context.
-model: haiku
-tools: Read, Grep, Glob, Bash, mcp__missions__read, mcp__missions__diff, mcp__missions__run_assertions, mcp__missions__validate
+model: sonnet
+tools: Read, Grep, Glob, Bash, mcp__plugin_sheldon_missions__read, mcp__plugin_sheldon_missions__diff, mcp__plugin_sheldon_missions__run_assertions, mcp__plugin_sheldon_missions__validate
 disallowed_tools: Write, Edit, Agent
 ---
 
