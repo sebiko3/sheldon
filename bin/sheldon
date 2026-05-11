@@ -15,7 +15,9 @@ while [ -L "$script" ]; do
 done
 REPO_ROOT="$(cd "$(dirname "$script")/.." && pwd)"
 
-cd "$REPO_ROOT"
-npm run --silent build:mcp
+# Build the MCP server from the repo, but don't change the caller's $PWD —
+# Claude Code and the MCP server use it to decide where .missions/ and
+# .epics/ live, so preserving it lets `sheldon` be invoked from any project.
+( cd "$REPO_ROOT" && npm run --silent build:mcp )
 
 exec claude --plugin-dir "$REPO_ROOT" "$@"
