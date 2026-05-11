@@ -1,5 +1,5 @@
 {
-  "description": "sheldon Missions: enforce contract immutability for non-orchestrator agents and emit state-transition notifications.",
+  "description": "sheldon Missions: enforce contract immutability, record worker-touched files for scope discipline, and emit state-transition log entries.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,18 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-tool-use.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/post-tool-use.sh",
             "timeout": 10
           }
         ]

@@ -39,7 +39,20 @@ export function App({ repoRoot }: AppProps) {
   const [selected, setSelected] = useState(0);
   const [statusLine, setStatusLine] = useState("");
   const [diff, setDiff] = useState<string>("");
+  const [lastKey, setLastKey] = useState<string>("");
+  const [keyCount, setKeyCount] = useState(0);
   const lastValidationCount = useRef<Map<string, number>>(new Map());
+
+  // Backstop exit: even if Ink's exit() somehow no-ops, Ctrl-C will still
+  // terminate the process. Listening here also covers the case where the
+  // child InputHandler doesn't get keys.
+  useEffect(() => {
+    const onSigint = () => process.exit(0);
+    process.on("SIGINT", onSigint);
+    return () => {
+      process.off("SIGINT", onSigint);
+    };
+  }, []);
 
   // Watcher → reload missions on any change under .missions/
   useEffect(() => {
@@ -93,9 +106,39 @@ export function App({ repoRoot }: AppProps) {
 
   const { isRawModeSupported } = useStdin();
 
-  const onKey = (input: string, key: { upArrow: boolean; downArrow: boolean; tab: boolean; ctrl: boolean }) => {
+  const onKey = (
+    input: string,
+    key: {
+      upArrow: boolean;
+      downArrow: boolean;
+      tab: boolean;
+      ctrl: boolean;
+      escape: boolean;
+      return: boolean;
+    },
+  ) => {
+    // Debug: record every key the handler observes. If this never updates,
+    // the input layer isn't delivering events at all (terminal raw-mode issue).
+    setKeyCount((n) => n + 1);
+    const label = key.upArrow
+      ? "↑"
+      : key.downArrow
+        ? "↓"
+        : key.tab
+          ? "tab"
+          : key.escape
+            ? "esc"
+            : key.return
+              ? "return"
+              : key.ctrl
+                ? `^${input}`
+                : input || "?";
+    setLastKey(label);
+
     if (input === "q" || (key.ctrl && input === "c")) {
       exit();
+      // Backstop: a tick later, hard-exit in case Ink's exit() didn't unwind.
+      setTimeout(() => process.exit(0), 50);
       return;
     }
     if (key.upArrow || input === "k") {
@@ -103,7 +146,7 @@ export function App({ repoRoot }: AppProps) {
       return;
     }
     if (key.downArrow || input === "j" || key.tab) {
-      setSelected((s) => Math.min(missions.length - 1, s + 1));
+      setSelected((s) => Math.min(Math.max(0, missions.length - 1), s + 1));
       return;
     }
     if (input === "a" && current && "state" in current) {
@@ -134,7 +177,12 @@ export function App({ repoRoot }: AppProps) {
           <DetailPane mission={current} repoRoot={repoRoot} diff={diff} />
         </Box>
       </Box>
-      <Footer statusLine={statusLine} interactive={!!isRawModeSupported} />
+      <Footer
+        statusLine={statusLine}
+        interactive={!!isRawModeSupported}
+        lastKey={lastKey}
+        keyCount={keyCount}
+      />
     </Box>
   );
 }
@@ -142,7 +190,17 @@ export function App({ repoRoot }: AppProps) {
 function InputHandler({
   onKey,
 }: {
-  onKey: (input: string, key: { upArrow: boolean; downArrow: boolean; tab: boolean; ctrl: boolean }) => void;
+  onKey: (
+    input: string,
+    key: {
+      upArrow: boolean;
+      downArrow: boolean;
+      tab: boolean;
+      ctrl: boolean;
+      escape: boolean;
+      return: boolean;
+    },
+  ) => void;
 }) {
   useInput((input, key) => onKey(input, key));
   return null;
@@ -303,15 +361,34 @@ function truncateLines(s: string, n: number): string {
   return lines.slice(0, n).join("\n") + "\n…";
 }
 
-function Footer({ statusLine, interactive }: { statusLine: string; interactive: boolean }) {
+function Footer({
+  statusLine,
+  interactive,
+  lastKey,
+  keyCount,
+}: {
+  statusLine: string;
+  interactive: boolean;
+  lastKey: string;
+  keyCount: number;
+}) {
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginTop={1}>
-      <Text dimColor>
-        {interactive
-          ? "↑↓/jk select · tab next · a copy /mission-approve · s copy /mission-status · r refresh · q quit"
-          : "(non-TTY: read-only render. Run from a real terminal for keyboard input.)"}
-      </Text>
-      {statusLine ? <Text color="green">{statusLine}</Text> : null}
+    <Box flexDirection="column" marginTop={1}>
+      <Box flexDirection="row" justifyContent="space-between">
+        <Text dimColor>
+          {interactive
+            ? "↑↓/jk select · tab next · a copy /mission-approve · s copy /mission-status · r refresh · q quit"
+            : "(non-TTY: read-only render. Run from a real terminal for keyboard input.)"}
+        </Text>
+        {statusLine ? <Text color="green">{statusLine}</Text> : null}
+      </Box>
+      {interactive ? (
+        <Text dimColor>
+          {keyCount === 0
+            ? "(no keys received yet — if this stays at 0 while you press keys, raw-mode isn't capturing input)"
+            : `keys: ${keyCount}  last: ${lastKey}`}
+        </Text>
+      ) : null}
     </Box>
   );
 }

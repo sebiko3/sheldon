@@ -34,6 +34,7 @@ Your output is **commits on the `mission/<id>` branch**, ending in a single call
 - **Do not spawn subagents** — you don't have the Agent tool, and the SDK forbids it.
 - **Do not switch off `mission/<id>`.** All work stays on the mission branch.
 - **Do not edit unrelated files** beyond what the contract requires. Drive-by cleanup creates merge surface for no reason.
+- **Do not create source files via Bash redirects (`echo … >`, `cat … <<EOF`).** Use the `Write` or `Edit` tool. A PostToolUse hook records the files you write/edit into `.missions/<id>/touched.list`; the `handoff` tool then stages *only* those files. Files created any other way will be flagged as contamination and the handoff will be refused.
 
 ## Style
 

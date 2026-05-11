@@ -1,13 +1,15 @@
 import { ulid } from "ulid";
 import { z } from "zod";
 import {
+  checkoutBranch,
   commitAll,
+  commitOnlyPaths,
   createMissionBranch,
   diffStatSinceBase,
   diffSinceBase,
   headCommit,
   mergeMissionBranch,
-  checkoutBranch,
+  scopeCheck,
 } from "./git.js";
 import {
   listMissions,
@@ -20,6 +22,8 @@ import {
   writeValidationFindings,
 } from "./state.js";
 import { MissionState } from "./schema.js";
+import { assertActiveMatchesOrUnset, clearActive, writeActive } from "./active.js";
+import { clearTouched, readTouchedSet } from "./touched.js";
 
 const nowIso = () => new Date().toISOString();
 
@@ -112,8 +116,16 @@ export async function handleApprove(input: z.infer<typeof approveInput>) {
   if (state.phase !== "contract_review") {
     fail(`Cannot approve in phase=${state.phase}; expected contract_review.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   const next = transitionPhase({ ...state, current_role: "worker" }, "implementing");
   saveMission(next);
+  // Start fresh touched.list and acquire the active mutex for the worker.
+  clearTouched(input.mission_id);
+  writeActive({
+    mission_id: input.mission_id,
+    role: "worker",
+    started_at: nowIso(),
+  });
   return ok({ ok: true, phase: next.phase, branch: next.branch });
 }
 
@@ -127,8 +139,26 @@ export async function handleHandoff(input: z.infer<typeof handoffInput>) {
   if (state.phase !== "implementing") {
     fail(`Cannot hand off in phase=${state.phase}; expected implementing.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   await checkoutBranch(state.branch).catch(() => undefined);
-  const commit = (await commitAll(`mission ${state.id}: handoff`)) ?? (await headCommit());
+
+  // Scope discipline: stage only files the worker actually touched (recorded
+  // by the PostToolUse hook into .missions/<id>/touched.list). Anything dirty
+  // in the working tree that's NOT in that set is contamination — refuse the
+  // handoff with a helpful error so the worker (or the user) can clean up.
+  const touched = readTouchedSet(input.mission_id);
+  const scope = await scopeCheck(touched);
+  if (scope.outOfScope.length > 0) {
+    fail(
+      `sheldon: handoff refused — ${scope.outOfScope.length} file(s) dirty in the working tree that the Worker never touched via Write/Edit:\n  ` +
+        scope.outOfScope.map((p) => `- ${p}`).join("\n  ") +
+        `\n\nThis usually means another actor (a parallel Claude Code session, a hook, a manual edit) modified files during this mission. Fix:\n` +
+        `  1. Inspect: git status\n  2. Either commit those changes separately on another branch, or revert them.\n  3. Then have the Worker re-run handoff.`,
+    );
+  }
+
+  const commit = (await commitOnlyPaths(scope.inScope, `mission ${state.id}: handoff`)) ??
+    (await headCommit());
   const n = state.handoffs.length + 1;
   const summaryPath = writeHandoffSummary(state.id, n, input.summary);
   const next = transitionPhase(
@@ -143,7 +173,18 @@ export async function handleHandoff(input: z.infer<typeof handoffInput>) {
     "handed_off",
   );
   saveMission(next);
-  return ok({ ok: true, phase: next.phase, commit, summary_path: summaryPath });
+
+  // Worker is no longer active. Keep touched.list around for inspection until
+  // the next implementing cycle (reopen will clear it).
+  clearActive();
+
+  return ok({
+    ok: true,
+    phase: next.phase,
+    commit,
+    summary_path: summaryPath,
+    staged_files: scope.inScope,
+  });
 }
 
 // ── start_validation (orchestrator transitions handed_off → validating) ──────
@@ -153,6 +194,7 @@ export async function handleStartValidation(input: z.infer<typeof startValidatio
   if (state.phase !== "handed_off") {
     fail(`Cannot start validation in phase=${state.phase}; expected handed_off.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   const next = transitionPhase(
     {
       ...state,
@@ -165,6 +207,7 @@ export async function handleStartValidation(input: z.infer<typeof startValidatio
     "validating",
   );
   saveMission(next);
+  writeActive({ mission_id: input.mission_id, role: "validator", started_at: nowIso() });
   return ok({ ok: true, phase: next.phase });
 }
 
@@ -179,6 +222,7 @@ export async function handleValidate(input: z.infer<typeof validateInput>) {
   if (state.phase !== "validating") {
     fail(`Cannot validate in phase=${state.phase}; expected validating.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   const n = state.validation_runs.length + 1;
   const findingsPath = writeValidationFindings(state.id, n, input.findings);
   const nextPhase = input.verdict === "pass" ? "validated" : "rejected";
@@ -198,6 +242,7 @@ export async function handleValidate(input: z.infer<typeof validateInput>) {
     nextPhase,
   );
   saveMission(next);
+  clearActive();
   return ok({ ok: true, phase: next.phase, verdict: input.verdict, findings_path: findingsPath });
 }
 
@@ -208,8 +253,11 @@ export async function handleReopen(input: z.infer<typeof reopenInput>) {
   if (state.phase !== "rejected") {
     fail(`Cannot reopen in phase=${state.phase}; expected rejected.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   const next = transitionPhase({ ...state, current_role: "worker" }, "implementing");
   saveMission(next);
+  clearTouched(input.mission_id);
+  writeActive({ mission_id: input.mission_id, role: "worker", started_at: nowIso() });
   return ok({ ok: true, phase: next.phase });
 }
 
@@ -220,9 +268,12 @@ export async function handleMerge(input: z.infer<typeof mergeInput>) {
   if (state.phase !== "validated") {
     fail(`Cannot merge in phase=${state.phase}; expected validated.`);
   }
+  assertActiveMatchesOrUnset(input.mission_id);
   await mergeMissionBranch(state.branch);
   const next = transitionPhase({ ...state, current_role: null }, "done");
   saveMission(next);
+  clearActive();
+  clearTouched(input.mission_id);
   return ok({ ok: true, phase: next.phase, merged_branch: state.branch });
 }
 
@@ -238,6 +289,9 @@ export async function handleAbort(input: z.infer<typeof abortInput>) {
   if (input.reason) {
     writeValidationFindings(state.id, state.validation_runs.length + 1, `Aborted: ${input.reason}`);
   }
+  // Release the mutex if this mission held it.
+  clearActive();
+  clearTouched(input.mission_id);
   return ok({ ok: true, phase: next.phase });
 }
 
