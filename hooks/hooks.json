@@ -1,0 +1,28 @@
+{
+  "description": "sheldon Missions: enforce contract immutability for non-orchestrator agents and emit state-transition notifications.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-tool-use.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/subagent-stop.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

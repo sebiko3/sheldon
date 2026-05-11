@@ -1,0 +1,19 @@
+{
+  "name": "sheldon",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Multi-agent Missions orchestration as a Claude Code plugin",
+  "type": "module",
+  "workspaces": [
+    "mcp/missions-server",
+    "tui"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:mcp": "npm run build --workspace mcp/missions-server",
+    "clean": "rm -rf mcp/missions-server/dist tui/dist"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
