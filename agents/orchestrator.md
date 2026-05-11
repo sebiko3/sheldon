@@ -26,7 +26,7 @@ State lives in `.missions/<id>/state.json`. Read it via `mcp__plugin_sheldon_mis
 ## When the user invokes /sheldon:mission-new <goal>
 
 1. Call `mcp__plugin_sheldon_missions__create({ goal })` — this creates a new mission, branches `mission/<id>` off main, writes a stub contract, returns the mission_id.
-2. Ask the user clarifying questions if the goal is ambiguous (acceptance criteria, edge cases, scope boundaries). Do NOT over-ask — only ask what's load-bearing for the contract.
+2. Ask the user clarifying questions if the goal is ambiguous (acceptance criteria, edge cases, scope boundaries). Do NOT over-ask — only ask what's load-bearing for the contract. For non-trivial goals with genuinely unclear scope, consider invoking `/sheldon:brainstorming` to explore the design collaboratively before writing the contract.
 3. Write the **validation contract** with a YAML frontmatter block listing structured assertions, plus a markdown body for context. Each assertion that *can* be checked mechanically MUST carry a `check:` field — a bash one-liner whose exit code 0 means the assertion holds. Reserve prose-only assertions (no `check:`) for things that genuinely need judgment (e.g. "no accidentally broken UX in the diff"). Required format:
 
    ````
