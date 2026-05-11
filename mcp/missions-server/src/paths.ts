@@ -1,7 +1,24 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 
-const REPO_ROOT = process.env.SHELDON_REPO_ROOT ?? process.cwd();
+function resolveRepoRoot(): string {
+  const raw = process.env.SHELDON_REPO_ROOT;
+  // Treat unexpanded "${...}" placeholders (some MCP launchers leave these
+  // literal) and non-existent paths as unset; fall back to cwd, which Claude
+  // Code sets to the project directory when spawning MCP servers.
+  if (!raw || /^\$\{[^}]+\}$/.test(raw) || !existsSync(raw)) {
+    if (raw && !existsSync(raw)) {
+      process.stderr.write(
+        `[missions] SHELDON_REPO_ROOT=${JSON.stringify(raw)} does not exist; falling back to cwd=${process.cwd()}\n`,
+      );
+    }
+    return process.cwd();
+  }
+  return raw;
+}
+
+const REPO_ROOT = resolveRepoRoot();
+process.stderr.write(`[missions] repo root = ${REPO_ROOT}\n`);
 
 export function repoRoot(): string {
   return REPO_ROOT;

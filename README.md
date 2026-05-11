@@ -63,6 +63,12 @@ Inside Claude Code:
 
 macOS only. Uses `fs.watch` (APFS-friendly), POSIX paths, optional `osascript` notifications.
 
+## Environment variables
+
+| Var | Default | Purpose |
+|-----|---------|---------|
+| `SHELDON_REPO_ROOT` | `process.cwd()` (which Claude Code sets to the project directory) | Override the directory the MCP server treats as the project root. Unexpanded `${...}` placeholders and non-existent paths are ignored and the fallback is used. |
+
 ## Auth note
 
 This plugin runs *inside* Claude Code, which uses the user's Claude Pro/Max/Team/Enterprise subscription for inference — ToS-compliant first-party use. Sheldon never handles OAuth tokens itself.

@@ -3,10 +3,7 @@
     "missions": {
       "type": "stdio",
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/missions-server/dist/index.js"],
-      "env": {
-        "SHELDON_REPO_ROOT": "${CLAUDE_PROJECT_DIR}"
-      }
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/missions-server/dist/index.js"]
     }
   }
 }
