@@ -5,6 +5,8 @@ import { watchMissions } from "./watcher.js";
 import { diffStat } from "./git.js";
 import { osNotify, pbcopy } from "./notify.js";
 import type { Phase } from "./types.js";
+import { loadAllEpics, type Epic } from "./epic-store.js";
+import { MissionBoard } from "./board.js";
 
 interface AppProps {
   repoRoot: string;
@@ -36,11 +38,13 @@ function shortId(id: string): string {
 export function App({ repoRoot }: AppProps) {
   const { exit } = useApp();
   const [missions, setMissions] = useState<LoadedMission[]>([]);
+  const [epics, setEpics] = useState<Epic[]>([]);
   const [selected, setSelected] = useState(0);
   const [statusLine, setStatusLine] = useState("");
   const [diff, setDiff] = useState<string>("");
   const [lastKey, setLastKey] = useState<string>("");
   const [keyCount, setKeyCount] = useState(0);
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const lastValidationCount = useRef<Map<string, number>>(new Map());
 
   // Backstop exit: even if Ink's exit() somehow no-ops, Ctrl-C will still
@@ -54,11 +58,12 @@ export function App({ repoRoot }: AppProps) {
     };
   }, []);
 
-  // Watcher → reload missions on any change under .missions/
+  // Watcher → reload missions and epics on any change under .missions/ or .epics/
   useEffect(() => {
     const w = watchMissions(repoRoot, () => {
       const loaded = loadAllMissions(repoRoot);
       setMissions(loaded);
+      setEpics(loadAllEpics(repoRoot));
       // Surface a Notification Center alert when a mission gains a new
       // validation_run entry (i.e., the Validator just reported a verdict).
       for (const m of loaded) {
@@ -162,7 +167,12 @@ export function App({ repoRoot }: AppProps) {
     if (input === "r") {
       const loaded = loadAllMissions(repoRoot);
       setMissions(loaded);
+      setEpics(loadAllEpics(repoRoot));
       setStatusLine("refreshed");
+      return;
+    }
+    if (input === "v") {
+      setViewMode((m) => (m === "list" ? "board" : "list"));
       return;
     }
   };
@@ -172,16 +182,23 @@ export function App({ repoRoot }: AppProps) {
       {isRawModeSupported ? <InputHandler onKey={onKey} /> : null}
       <Header repoRoot={repoRoot} total={missions.length} interactive={!!isRawModeSupported} />
       <Box flexDirection="row" marginTop={1}>
-        <MissionList missions={missions} selected={selected} />
-        <Box flexDirection="column" marginLeft={2} flexGrow={1}>
-          <DetailPane mission={current} repoRoot={repoRoot} diff={diff} />
-        </Box>
+        {viewMode === "board" ? (
+          <MissionBoard missions={missions} epics={epics} />
+        ) : (
+          <>
+            <MissionList missions={missions} selected={selected} />
+            <Box flexDirection="column" marginLeft={2} flexGrow={1}>
+              <DetailPane mission={current} repoRoot={repoRoot} diff={diff} />
+            </Box>
+          </>
+        )}
       </Box>
       <Footer
         statusLine={statusLine}
         interactive={!!isRawModeSupported}
         lastKey={lastKey}
         keyCount={keyCount}
+        viewMode={viewMode}
       />
     </Box>
   );
@@ -366,18 +383,22 @@ function Footer({
   interactive,
   lastKey,
   keyCount,
+  viewMode,
 }: {
   statusLine: string;
   interactive: boolean;
   lastKey: string;
   keyCount: number;
+  viewMode: "list" | "board";
 }) {
   return (
     <Box flexDirection="column" marginTop={1}>
       <Box flexDirection="row" justifyContent="space-between">
         <Text dimColor>
           {interactive
-            ? "↑↓/jk select · tab next · a copy /mission-approve · s copy /mission-status · r refresh · q quit"
+            ? viewMode === "board"
+              ? "v list · r refresh · q quit"
+              : "↑↓/jk select · tab next · a copy /mission-approve · s copy /mission-status · v board · r refresh · q quit"
             : "(non-TTY: read-only render. Run from a real terminal for keyboard input.)"}
         </Text>
         {statusLine ? <Text color="green">{statusLine}</Text> : null}

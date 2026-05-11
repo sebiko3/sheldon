@@ -1,19 +1,25 @@
 import { watch, existsSync, mkdirSync, FSWatcher } from "node:fs";
 import path from "node:path";
 import { missionsDir } from "./missions.js";
+import { epicsDir } from "./epic-store.js";
 
 export interface Watcher {
   close(): void;
 }
 
-// Watch .missions/ recursively. We use fs.watch with { recursive: true } which
-// is reliable on macOS APFS. If the dir doesn't exist yet, create it so the
-// watcher has something to attach to (state files will appear as missions are
-// created).
-export function watchMissions(repoRoot: string, onChange: () => void): Watcher {
-  const dir = missionsDir(repoRoot);
+function makeWatcher(dir: string, debounced: () => void): FSWatcher {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  try {
+    return watch(dir, { recursive: true }, debounced);
+  } catch {
+    return watch(dir, debounced);
+  }
+}
 
+// Watch .missions/ and .epics/ recursively. We use fs.watch with
+// { recursive: true } which is reliable on macOS APFS. If the dirs don't
+// exist yet, create them so the watcher has something to attach to.
+export function watchMissions(repoRoot: string, onChange: () => void): Watcher {
   let timer: NodeJS.Timeout | null = null;
   const debounced = () => {
     if (timer) clearTimeout(timer);
@@ -23,14 +29,8 @@ export function watchMissions(repoRoot: string, onChange: () => void): Watcher {
     }, 75);
   };
 
-  let watcher: FSWatcher;
-  try {
-    watcher = watch(dir, { recursive: true }, debounced);
-  } catch {
-    // Fall back to non-recursive watch on top dir if recursive fails for any
-    // reason (rare on macOS but defensive).
-    watcher = watch(dir, debounced);
-  }
+  const missionsWatcher = makeWatcher(missionsDir(repoRoot), debounced);
+  const epicsWatcher = makeWatcher(epicsDir(repoRoot), debounced);
 
   // Also fire an initial change so the UI populates on mount.
   setImmediate(onChange);
@@ -39,7 +39,12 @@ export function watchMissions(repoRoot: string, onChange: () => void): Watcher {
     close() {
       if (timer) clearTimeout(timer);
       try {
-        watcher.close();
+        missionsWatcher.close();
+      } catch {
+        // already closed
+      }
+      try {
+        epicsWatcher.close();
       } catch {
         // already closed
       }

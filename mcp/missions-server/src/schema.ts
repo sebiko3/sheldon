@@ -64,3 +64,22 @@ export const ALLOWED_TRANSITIONS: Record<Phase, Phase[]> = {
 export function canTransition(from: Phase, to: Phase): boolean {
   return ALLOWED_TRANSITIONS[from].includes(to);
 }
+
+export const EpicIssueSchema = z.object({
+  id: z.number().int().positive(),
+  title: z.string(),
+  rationale: z.string(),
+  acceptance_sketch: z.array(z.string()),
+  status: z.enum(["proposed", "promoted", "declined"]),
+  promoted_mission_id: z.string().nullable(),
+});
+
+export const EpicSchema = z.object({
+  id: z.string(),
+  brief: z.string(),
+  created_at: z.string(),
+  issues: z.array(EpicIssueSchema),
+});
+
+export type EpicIssue = z.infer<typeof EpicIssueSchema>;
+export type Epic = z.infer<typeof EpicSchema>;

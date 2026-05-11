@@ -53,3 +53,19 @@ export function ensureMissionDirs(id: string): void {
   mkdirSync(handoffsDir(id), { recursive: true });
   mkdirSync(validationsDir(id), { recursive: true });
 }
+
+export function epicsDir(): string {
+  return path.join(REPO_ROOT, ".epics");
+}
+
+export function epicDir(id: string): string {
+  return path.join(epicsDir(), id);
+}
+
+export function epicFilePath(id: string): string {
+  return path.join(epicDir(id), "epic.md");
+}
+
+export function ensureEpicDir(id: string): void {
+  mkdirSync(epicDir(id), { recursive: true });
+}

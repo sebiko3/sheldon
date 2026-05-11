@@ -350,6 +350,70 @@ export async function handleRunAssertions(input: z.infer<typeof runAssertionsInp
   return ok(outcome);
 }
 
+// ── epic_create ───────────────────────────────────────────────────────────────
+export const epicCreateInput = z.object({
+  brief: z.string().min(1, "brief required"),
+  epic_id: z.string().optional(),
+});
+export async function handleEpicCreate(input: z.infer<typeof epicCreateInput>) {
+  const { createEpic } = await import("./epics.js");
+  const { ulid: makeUlid } = await import("ulid");
+  const id = input.epic_id ?? makeUlid();
+  const epic = createEpic(id, input.brief);
+  return ok({ epic_id: id, brief: epic.brief, created_at: epic.created_at, issues: epic.issues });
+}
+
+// ── epic_read ─────────────────────────────────────────────────────────────────
+export const epicReadInput = z.object({ epic_id: z.string() });
+export async function handleEpicRead(input: z.infer<typeof epicReadInput>) {
+  const { readEpic } = await import("./epics.js");
+  const epic = readEpic(input.epic_id);
+  return ok(epic);
+}
+
+// ── epic_list ─────────────────────────────────────────────────────────────────
+export const epicListInput = z.object({ status: z.string().optional() }).strict();
+export async function handleEpicList(input: z.infer<typeof epicListInput>) {
+  const { listEpics } = await import("./epics.js");
+  const all = listEpics();
+  const filtered = input.status
+    ? all.map((e) => ({
+        ...e,
+        issues: e.issues.filter((i) => i.status === input.status),
+      }))
+    : all;
+  return ok({
+    count: filtered.length,
+    epics: filtered.map((e) => ({
+      id: e.id,
+      brief: e.brief,
+      created_at: e.created_at,
+      issues_total: e.issues.length,
+      proposed: e.issues.filter((i) => i.status === "proposed").length,
+      promoted: e.issues.filter((i) => i.status === "promoted").length,
+      declined: e.issues.filter((i) => i.status === "declined").length,
+    })),
+  });
+}
+
+// ── epic_promote_issue ────────────────────────────────────────────────────────
+export const epicPromoteIssueInput = z.object({
+  epic_id: z.string(),
+  issue_id: z.number().int().positive(),
+  goal: z.string().optional(),
+});
+export async function handleEpicPromoteIssue(input: z.infer<typeof epicPromoteIssueInput>) {
+  const { readEpic, promoteIssue } = await import("./epics.js");
+  const epic = readEpic(input.epic_id);
+  const issue = epic.issues.find((i) => i.id === input.issue_id);
+  if (!issue) fail(`Issue ${input.issue_id} not found in epic ${input.epic_id}`);
+  const goal = input.goal ?? issue.title;
+  const missionResult = await handleCreate({ goal });
+  const missionId = JSON.parse(missionResult.content[0]!.text).mission_id as string;
+  promoteIssue(input.epic_id, input.issue_id, missionId);
+  return ok({ mission_id: missionId, epic_id: input.epic_id, issue_id: input.issue_id });
+}
+
 // ── diff (helper for validator) ──────────────────────────────────────────────
 export const diffInput = z.object({ mission_id: z.string() });
 export async function handleDiff(input: z.infer<typeof diffInput>) {
