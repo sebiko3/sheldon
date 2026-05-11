@@ -6,3 +6,6 @@ dist/
 # Mission state lives in .missions/ in target repos, not in this plugin repo.
 # But we still ignore it in case someone runs the plugin against itself for testing.
 .missions/
+
+# Claude Code writes a per-user permissions cache here. Not project state.
+.claude/settings.local.json
