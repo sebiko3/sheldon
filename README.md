@@ -59,6 +59,7 @@ For a step-by-step example of a full mission (happy path + rejection + contamina
 | `/sheldon:epic-new <brief>` | Decompose a vague brief into 3–7 candidate sub-missions; Epic Planner researches the codebase in parallel and writes `.epics/<id>/epic.md` for review. |
 | `/sheldon:epic-list [--status=<status>]` | List all epics and their proposed issues. |
 | `/sheldon:epic-promote <epic_id> <issue_id>` | Promote one epic issue into a real mission (creates a mission in `planning` phase). |
+| `/sheldon:missions-report` | Print a one-screen health snapshot of the mission loop — phase breakdown, throughput, time-to-merge percentiles, rework + abort rate, recently merged. Pure stdlib Python; safe to run any time. |
 
 ## Epics: turning vague briefs into missions
 
