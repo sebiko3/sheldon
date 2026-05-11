@@ -16,6 +16,10 @@ import {
   handleStartValidation,
   handleValidate,
   handleWriteContract,
+  handleEpicCreate,
+  handleEpicRead,
+  handleEpicList,
+  handleEpicPromoteIssue,
 } from "./tools.js";
 
 const server = new McpServer({
@@ -157,6 +161,33 @@ server.registerTool(
   },
   async (args) => handleDiff(args),
 );
+
+server.registerTool("epic_create", {
+  description:
+    "Create a new epic for a vague brief. Returns { epic_id, brief, created_at, issues }. Add issues by editing the epic file or via the epic-planner agent. Caller: epic-planner agent or user.",
+  inputSchema: { brief: z.string().min(1), epic_id: z.string().optional() },
+}, async (args) => handleEpicCreate(args));
+
+server.registerTool("epic_read", {
+  description: "Read an epic by id. Returns the full epic with all issues and their statuses.",
+  inputSchema: { epic_id: z.string() },
+}, async (args) => handleEpicRead(args));
+
+server.registerTool("epic_list", {
+  description:
+    "List all epics, optionally filtered by issue status. Returns summaries with counts grouped by status.",
+  inputSchema: { status: z.string().optional() },
+}, async (args) => handleEpicList(args));
+
+server.registerTool("epic_promote_issue", {
+  description:
+    "Promote an epic issue to a real Sheldon mission. Creates a new mission via the missions.create flow, flips the issue status to promoted, and returns { mission_id, epic_id, issue_id }.",
+  inputSchema: {
+    epic_id: z.string(),
+    issue_id: z.number().int().positive(),
+    goal: z.string().optional(),
+  },
+}, async (args) => handleEpicPromoteIssue(args));
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
