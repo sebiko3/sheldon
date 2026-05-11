@@ -27,12 +27,40 @@ State lives in `.missions/<id>/state.json`. Read it via `mcp__missions__read`. N
 
 1. Call `mcp__missions__create({ goal })` — this creates a new mission, branches `mission/<id>` off main, writes a stub contract, returns the mission_id.
 2. Ask the user clarifying questions if the goal is ambiguous (acceptance criteria, edge cases, scope boundaries). Do NOT over-ask — only ask what's load-bearing for the contract.
-3. Write the **validation contract**: a numbered list of assertions that define correctness *independently of how it's implemented*. Examples:
-   - "1. A function `greet(name: string): string` is exported from `hello.ts`."
-   - "2. `greet('world')` returns the string `'Hello, world!'`."
-   - "3. `npx vitest run` exits 0 with at least one test for `greet`."
-   Each assertion must be **checkable mechanically** — either by reading a file, running a command, or grepping. If you can't write a mechanical check, the assertion is too vague.
-4. Call `mcp__missions__write_contract({ mission_id, contract })` with the full contract body. This transitions phase → `contract_review`.
+3. Write the **validation contract** with a YAML frontmatter block listing structured assertions, plus a markdown body for context. Each assertion that *can* be checked mechanically MUST carry a `check:` field — a bash one-liner whose exit code 0 means the assertion holds. Reserve prose-only assertions (no `check:`) for things that genuinely need judgment (e.g. "no accidentally broken UX in the diff"). Required format:
+
+   ````
+   ---
+   assertions:
+     - id: file-exists                       # kebab-case, unique
+       description: src/foo.ts exists and is non-empty
+       check: test -s src/foo.ts
+     - id: signature
+       description: greet has signature (name: string) => string
+       check: grep -q 'export function greet(name: string): string' src/foo.ts
+     - id: tests-pass
+       description: the vitest spec for greet passes
+       check: npm test --workspace mcp/missions-server
+       timeout: 120                          # optional, default 60s
+     - id: no-tsc-errors
+       description: tsc still clean
+       check: npm run build --workspace mcp/missions-server
+     - id: scope-discipline
+       description: no files outside the agreed scope were modified
+       # no check: → manual; validator will reason about it
+   ---
+
+   # Validation contract — mission <id>
+
+   Goal: <goal>
+
+   ## Notes
+   <freeform context that helps the worker + validator>
+   ````
+
+   Every `check:` is run by `bash -c` with `cwd` at the repo root. Use idempotent, fast checks: prefer `test -f`, `grep -q`, `npm run lint`, focused `npx vitest run path/to/test` over full suites when possible. Commands that need >60s should set a `timeout:`.
+
+4. Call `mcp__missions__write_contract({ mission_id, contract })` with the full contract body (frontmatter + markdown). This transitions phase → `contract_review`.
 5. Return to the user with: mission_id, the contract, and instruction to run `/sheldon:mission-approve <mission_id>` (or just `/sheldon:mission-approve` if there's only one in `contract_review`).
 
 ## When the user invokes /sheldon:mission-approve

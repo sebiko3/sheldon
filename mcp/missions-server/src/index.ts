@@ -12,6 +12,7 @@ import {
   handleMerge,
   handleRead,
   handleReopen,
+  handleRunAssertions,
   handleStartValidation,
   handleValidate,
   handleWriteContract,
@@ -126,10 +127,25 @@ server.registerTool(
 server.registerTool(
   "abort",
   {
-    description: "Abort an active mission. Caller: orchestrator or user.",
-    inputSchema: { mission_id: z.string(), reason: z.string().optional() },
+    description:
+      "Abort an active mission. Caller: orchestrator or user. Set delete_branch=true to also `git branch -D mission/<id>` (refused if the branch is currently checked out).",
+    inputSchema: {
+      mission_id: z.string(),
+      reason: z.string().optional(),
+      delete_branch: z.boolean().optional(),
+    },
   },
   async (args) => handleAbort(args),
+);
+
+server.registerTool(
+  "run_assertions",
+  {
+    description:
+      "Validator-only. Reads contract.md frontmatter, runs each assertion's `check:` command via bash -c, captures exit_code/stdout/stderr/duration, writes a checks log next to the validation run, and returns structured results. Assertions without `check:` are marked manual:true. Does NOT change phase or set verdict — call missions.validate afterward.",
+    inputSchema: { mission_id: z.string() },
+  },
+  async (args) => handleRunAssertions(args),
 );
 
 server.registerTool(

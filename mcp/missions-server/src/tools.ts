@@ -24,6 +24,8 @@ import {
 import { MissionState } from "./schema.js";
 import { assertActiveMatchesOrUnset, clearActive, writeActive } from "./active.js";
 import { clearTouched, readTouchedSet } from "./touched.js";
+import { runAssertions } from "./run-assertions.js";
+import { git, defaultBaseBranch, currentBranch } from "./git.js";
 
 const nowIso = () => new Date().toISOString();
 
@@ -278,21 +280,74 @@ export async function handleMerge(input: z.infer<typeof mergeInput>) {
 }
 
 // ── abort ────────────────────────────────────────────────────────────────────
-export const abortInput = z.object({ mission_id: z.string(), reason: z.string().optional() });
+export const abortInput = z.object({
+  mission_id: z.string(),
+  reason: z.string().optional(),
+  delete_branch: z.boolean().optional(),
+});
 export async function handleAbort(input: z.infer<typeof abortInput>) {
   const state = loadMission(input.mission_id);
   if (state.phase === "done" || state.phase === "aborted") {
     fail(`Mission already in terminal phase=${state.phase}.`);
   }
+
+  let branch_deleted = false;
+  let branch_skipped_reason: string | undefined;
+  if (input.delete_branch) {
+    const cur = await currentBranch();
+    if (cur === state.branch) {
+      branch_skipped_reason = `branch ${state.branch} is currently checked out as HEAD. Switch to another branch first if you want to delete it.`;
+    } else {
+      // Defensive: also refuse if the branch is checked out in another worktree.
+      let worktrees = "";
+      try {
+        worktrees = await git().raw(["worktree", "list", "--porcelain"]);
+      } catch {
+        worktrees = "";
+      }
+      if (worktrees.includes(`branch refs/heads/${state.branch}`)) {
+        branch_skipped_reason = `branch ${state.branch} is checked out in another worktree.`;
+      } else {
+        try {
+          await git().raw(["branch", "-D", state.branch]);
+          branch_deleted = true;
+        } catch (err) {
+          branch_skipped_reason = `git branch -D failed: ${(err as Error).message.split("\n")[0]}`;
+        }
+      }
+    }
+  }
+
   const next = transitionPhase({ ...state, current_role: null }, "aborted");
   saveMission(next);
-  if (input.reason) {
-    writeValidationFindings(state.id, state.validation_runs.length + 1, `Aborted: ${input.reason}`);
+  if (input.reason || branch_deleted || branch_skipped_reason) {
+    const parts = [];
+    if (input.reason) parts.push(`Aborted: ${input.reason}`);
+    if (branch_deleted) parts.push(`Branch ${state.branch} deleted.`);
+    if (branch_skipped_reason) parts.push(`Branch deletion skipped: ${branch_skipped_reason}`);
+    writeValidationFindings(state.id, state.validation_runs.length + 1, parts.join("\n"));
   }
+
   // Release the mutex if this mission held it.
   clearActive();
   clearTouched(input.mission_id);
-  return ok({ ok: true, phase: next.phase });
+
+  return ok({ ok: true, phase: next.phase, branch_deleted, branch_skipped_reason });
+}
+
+// ── run_assertions (validator) ───────────────────────────────────────────────
+export const runAssertionsInput = z.object({ mission_id: z.string() });
+export async function handleRunAssertions(input: z.infer<typeof runAssertionsInput>) {
+  const state = loadMission(input.mission_id);
+  if (state.phase !== "validating") {
+    fail(`Cannot run assertions in phase=${state.phase}; expected validating.`);
+  }
+  assertActiveMatchesOrUnset(input.mission_id);
+  // Number the log file with the upcoming validation run index so it sits
+  // next to the verdict findings the validator will write later.
+  const upcoming_n = state.validation_runs.length + 1;
+  const outcome = await runAssertions(input.mission_id, upcoming_n);
+  return ok(outcome);
 }
 
 // ── diff (helper for validator) ──────────────────────────────────────────────

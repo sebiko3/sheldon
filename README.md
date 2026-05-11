@@ -45,6 +45,8 @@ Inside Claude Code:
 /sheldon:mission-new "your goal here"
 ```
 
+For a step-by-step example of a full mission (happy path + rejection + contamination + abort-with-cleanup), see **[docs/walkthrough.md](docs/walkthrough.md)**.
+
 ## Layout
 
 | Path | Purpose |
