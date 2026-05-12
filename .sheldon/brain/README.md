@@ -37,6 +37,9 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
 
+- **contract-assertion-vs-goal-consistency** [high] _(evidence: 01KRDGPZY9R0KJHPS4X9ZW7JHS)_
+  Mechanical assertions must be consistent with the goal text. On mission 01KRDGPZY9R0KJHPS4X9ZW7JHS the goal said "older than --days N" but the assertion would-delete-output used --days 99999 | grep "would delete" — under correct semantics that captures nothing, so the worker inverted the semantics to satisfy the mechanical check. Mitigation: when writing assertions that probe behavior boundaries, anchor on fixture state (write a synthetic state.json with a known-old updated_at) rather than picking extreme flag values that depend on implementation semantics matching your mental model.
+
 - **epic-promote:dirty-tree** [high] _(evidence: 01KRDF1MCBK80KMCM2BXPSE9M3)_
   mcp__plugin_sheldon_missions__epic_promote_issue branches the new mission off main and THEN flips the issue status to promoted in .epics/<epic>/epic.md, leaving that file dirty on the mission branch without an entry in touched.list. Worker handoff refuses with contamination error. Mitigation: as Orchestrator, commit the epic.md edit on the mission branch BEFORE calling handoff (it is legitimate mission state — the promotion is the point of the mission). The gray-matter serializer reformats the YAML into folded block scalars, which is cosmetic but expected.
 
