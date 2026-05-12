@@ -43,6 +43,12 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
 
+- **mcp-server:write_contract-no-self-transition** [high] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
+  mcp__plugin_sheldon_missions__write_contract throws "Illegal phase transition: contract_review → contract_review" if called while already in contract_review. The state machine has no self-loop for that phase. Workaround for the orchestrator: write directly to .missions/<id>/contract.md (the main thread is allowed to write there; the PreToolUse hook only blocks subagents). Better fix would be a write_contract that allows in-place rewriting before approve.
+
+- **contract-yaml:heredoc-three-hyphens** [high] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
+  Do NOT put literal three-hyphen sequences inside YAML block scalars (| or > literals) in a contract — gray-matter and PyYAML can mistake them for frontmatter delimiters, silently truncating the assertion list. Workaround: build any fixture contract.md body via printf in the check script instead of a heredoc that includes triple-dash. Caught on mission 01KRDHSM5J2AW5TWMREKRVX8SS — only 8 of 11 assertions parsed initially.
+
 - **contract-assertion-vs-goal-consistency** [high] _(evidence: 01KRDGPZY9R0KJHPS4X9ZW7JHS)_
   Mechanical assertions must be consistent with the goal text. On mission 01KRDGPZY9R0KJHPS4X9ZW7JHS the goal said "older than --days N" but the assertion would-delete-output used --days 99999 | grep "would delete" — under correct semantics that captures nothing, so the worker inverted the semantics to satisfy the mechanical check. Mitigation: when writing assertions that probe behavior boundaries, anchor on fixture state (write a synthetic state.json with a known-old updated_at) rather than picking extreme flag values that depend on implementation semantics matching your mental model.
 
@@ -68,11 +74,15 @@ Meta-rules distilled from past mission outcomes — apply these to future contra
 
 Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-apply; the Orchestrator promotes these into missions.
 
-_(none yet)_
+- **agent:orchestrator** [low] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
+  When extracting scope-creep paths from a contract, the new pre-merge-scope-check hook will fire an advisory for the orchestrator-committed .epics/<id>/epic.md unless the contract explicitly mentions .epics/ or the specific epic path. Consider adding the epic path to the contract Notes section as a routine practice so the new hook does not generate false-positive advisories.
 
 ## Capability proposals
 
 Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Fed into the cowork loop.
+
+- **mcp-server:write_contract-self-transition** [medium] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
+  Patch mcp/missions-server/src/tools.ts handleWriteContract to allow contract_review → contract_review (no-op transition) so the orchestrator can iterate on a draft before approving. Currently the orchestrator has to side-step the MCP API by writing the file directly. One-line tools.ts fix: skip the transitionPhase call when state.phase is already contract_review.
 
 - **mission-retro:full-handoff-paragraph** [medium] _(evidence: 01KRDG9FQ1RDVNWCV0EFKW1BCJ)_
   scripts/mission-retro.py summarise_handoffs() extracts only the first paragraph of each handoff. When handoffs begin with a bare title line (e.g., "# Worker handoff — ID"), the synthesis field shows only that title. Improve by skipping leading heading-only paragraphs or by extracting from the first prose paragraph. Caught on mission 01KRDG9FQ1RDVNWCV0EFKW1BCJ.
