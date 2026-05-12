@@ -134,33 +134,47 @@
   // ── Matrix-scramble effect on the hero title ──────────────────────────────
   // Each character cycles through random glyphs before locking in. Uses RAF
   // (no setInterval — per project convention). Cyan glow styling lives in CSS.
+  // After the initial run the effect re-triggers at random intervals between
+  // REPEAT_MIN_MS and REPEAT_MAX_MS for a subtle "the system is alive" feel.
   const heroTitle = document.getElementById('hero-title');
   if (heroTitle && !reducedMotion) {
     const target = heroTitle.dataset.text || heroTitle.textContent;
     const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
-    const lockDelayPerChar = 110; // ms before character N stops scrambling
-    const frameMs = 45;           // visible character cycle time
+    const lockDelayPerChar = 260; // ms before character N stops scrambling
+    const frameMs = 80;           // visible character cycle time
+    const REPEAT_MIN_MS = 18000;  // shortest pause between re-runs
+    const REPEAT_MAX_MS = 45000;  // longest pause between re-runs
 
-    heroTitle.classList.add('scrambling');
-    const startTime = performance.now();
-    let lastFrame = 0;
+    function runScramble() {
+      heroTitle.classList.add('scrambling');
+      const startTime = performance.now();
+      let lastFrame = 0;
 
-    function scrambleFrame(now) {
-      const elapsed = now - startTime;
-      if (now - lastFrame >= frameMs) {
-        const out = Array.from(target, (ch, i) => {
-          if (elapsed >= lockDelayPerChar * (i + 1)) return ch;
-          return glyphs[Math.floor(Math.random() * glyphs.length)];
-        }).join('');
-        heroTitle.textContent = out;
-        lastFrame = now;
-        if (out === target) {
-          heroTitle.classList.remove('scrambling');
-          return;
+      function scrambleFrame(now) {
+        const elapsed = now - startTime;
+        if (now - lastFrame >= frameMs) {
+          const out = Array.from(target, (ch, i) => {
+            if (elapsed >= lockDelayPerChar * (i + 1)) return ch;
+            return glyphs[Math.floor(Math.random() * glyphs.length)];
+          }).join('');
+          heroTitle.textContent = out;
+          lastFrame = now;
+          if (out === target) {
+            heroTitle.classList.remove('scrambling');
+            scheduleNext();
+            return;
+          }
         }
+        requestAnimationFrame(scrambleFrame);
       }
       requestAnimationFrame(scrambleFrame);
     }
-    requestAnimationFrame(scrambleFrame);
+
+    function scheduleNext() {
+      const delay = REPEAT_MIN_MS + Math.random() * (REPEAT_MAX_MS - REPEAT_MIN_MS);
+      setTimeout(runScramble, delay);
+    }
+
+    runScramble();
   }
 }());
