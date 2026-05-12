@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **orchestrator:lint-before-write** [high] _(evidence: 01KRDG1DKFK3W5F2EAMZCXY8W4)_
+  When writing a contract, the Orchestrator writes the draft to .missions/<id>/contract.md, runs python3 ${CLAUDE_PLUGIN_ROOT:-.}/scripts/contract-lint.py on it via Bash, and refuses to proceed to write_contract if it exits non-zero. This is now codified in agents/orchestrator.md step 5 of the /sheldon:mission-new flow.
+
 - **missions-dir-gitignored** [high] _(evidence: 01KRCR9GG78PM3KNHZ0JSPQC2Z)_
   The plugin repo .gitignore lists .missions/ — per-mission state files (state.json, contract.md, handoffs/, validations/) live only in the working tree and never get committed. Mission artifacts on the mission branch are limited to the actual deliverables (scripts/, skills/, README.md, etc.). Do not git add .missions/<id>/ during the worker phase.
 
@@ -53,8 +56,7 @@ Meta-rules distilled from past mission outcomes — apply these to future contra
 
 Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-apply; the Orchestrator promotes these into missions.
 
-- **agent:orchestrator** [medium] _(evidence: 01KRCR9GG78PM3KNHZ0JSPQC2Z)_
-  After writing a draft contract and before calling write_contract, the Orchestrator should run /sheldon:contract-lint on the draft and refuse to proceed on a non-zero exit. This mechanically enforces the yaml-frontmatter lesson and the no-zero-executable-assertions invariant, instead of trusting the Orchestrator to remember both. Promote to a mission that edits agents/orchestrator.md once contract-lint is settled.
+_(none yet)_
 
 ## Capability proposals
 
