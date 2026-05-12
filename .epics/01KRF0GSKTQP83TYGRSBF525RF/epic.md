@@ -151,8 +151,8 @@ issues:
         Install commands appear in the same order as README's For-users block
         (single regex check `.*git clone.*npm install.*claude --plugin-dir`
         across the file via `tr -d '\n' | grep -q`).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF1KQM7RTYZHZ4VGT12VZFQ
   - id: 7
     title: Open Graph image plus total page-weight budget enforcement
     rationale: >-
