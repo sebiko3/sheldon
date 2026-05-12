@@ -1,7 +1,7 @@
 {
   "name": "sheldon",
   "description": "Multi-agent Missions orchestration — Orchestrator/Worker/Validator roles with serial execution, validation-contract-first, branch-per-mission",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": {
     "name": "sheldon"
   },

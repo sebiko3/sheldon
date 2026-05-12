@@ -1,7 +1,8 @@
 {
   "name": "@sheldon/missions-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Shared-state MCP server for sheldon Missions",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

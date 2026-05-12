@@ -47,8 +47,8 @@ issues:
       - >-
         .claude-plugin/plugin.json "version" matches the top-level package.json
         "version"
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREWX21WC9C8T00SFPZH38R7
   - id: 3
     title: Stop shipping Sheldon-self brain entries to downstream installs
     rationale: >-

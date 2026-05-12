@@ -1,9 +1,16 @@
 {
   "name": "sheldon",
-  "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Multi-agent Missions orchestration as a Claude Code plugin",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebiko3/sheldon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sebiko3/sheldon/issues"
+  },
+  "homepage": "https://github.com/sebiko3/sheldon#readme",
   "type": "module",
   "workspaces": [
     "mcp/missions-server",
