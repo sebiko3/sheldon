@@ -52,8 +52,8 @@ issues:
         mcp__plugin_sheldon_missions__write_contract call in the
         When-mission-new flow
       - No mutation to validator.md or worker.md (scope discipline)
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRDG1DKFK3W5F2EAMZCXY8W4
   - id: 3
     title: 'Add /sheldon:mission-retro skill for one-paragraph postmortems'
     rationale: >-
