@@ -3,7 +3,7 @@
 (function () {
   const STAR_COUNT = 300;
   const MAX_Z = 1000;
-  const SPEED = 2;
+  const SPEED = 0.42;
   const FOCAL = 600;
   const NEAR_PLANE = 1;
 
@@ -130,4 +130,37 @@
   }
 
   window.addEventListener('resize', onResize, { passive: true });
+
+  // ── Matrix-scramble effect on the hero title ──────────────────────────────
+  // Each character cycles through random glyphs before locking in. Uses RAF
+  // (no setInterval — per project convention). Cyan glow styling lives in CSS.
+  const heroTitle = document.getElementById('hero-title');
+  if (heroTitle && !reducedMotion) {
+    const target = heroTitle.dataset.text || heroTitle.textContent;
+    const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
+    const lockDelayPerChar = 110; // ms before character N stops scrambling
+    const frameMs = 45;           // visible character cycle time
+
+    heroTitle.classList.add('scrambling');
+    const startTime = performance.now();
+    let lastFrame = 0;
+
+    function scrambleFrame(now) {
+      const elapsed = now - startTime;
+      if (now - lastFrame >= frameMs) {
+        const out = Array.from(target, (ch, i) => {
+          if (elapsed >= lockDelayPerChar * (i + 1)) return ch;
+          return glyphs[Math.floor(Math.random() * glyphs.length)];
+        }).join('');
+        heroTitle.textContent = out;
+        lastFrame = now;
+        if (out === target) {
+          heroTitle.classList.remove('scrambling');
+          return;
+        }
+      }
+      requestAnimationFrame(scrambleFrame);
+    }
+    requestAnimationFrame(scrambleFrame);
+  }
 }());
