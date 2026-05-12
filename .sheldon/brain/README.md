@@ -81,6 +81,9 @@ Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-
 
 Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Surface via brain_recall --type proposal; promote into missions.
 
+- **readme:repo-url-consistency** [medium] _(evidence: 01KREXN8E6VPJBQT3T36V8C19J)_
+  README Install section uses your-org/sheldon as a placeholder repo URL, while package.json/plugin.json now point to github.com/sebiko3/sheldon. Make them consistent — either standardize on a real org or universally use a placeholder. Cosmetic, but readers will paste your-org and 404.
+
 - **contract-lint:check-value-colon-space** [high] _(evidence: 01KREWNYFVVG9KZBV0Q6A6W1A9)_
   scripts/contract-lint.py currently only flags unquoted colon-space in description: values. Extend it to also flag the same pattern in check: values. Would have caught mission 01KREWNYFVVG9KZBV0Q6A6W1A9 contract before approval.
 
