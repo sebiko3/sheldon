@@ -112,14 +112,19 @@ Clean happy-path merge.</span></code></pre>
     <section id="install">
       <div class="container">
         <h2>Install</h2>
-        <p class="install-intro">Clone the repo anywhere you like. The postinstall script builds the MCP server automatically — <code>npm install</code> is all you need. Then load Sheldon as a Claude Code plugin.</p>
+        <h3>Recommended: install via the Claude Code plugin marketplace</h3>
         <div class="install-code-wrap">
-          <pre><code>git clone https://github.com/sebiko3/sheldon &lt;sheldon-checkout&gt;
-cd &lt;sheldon-checkout&gt;
-npm install
-claude --plugin-dir &lt;sheldon-checkout&gt;</code></pre>
+          <pre><code>claude plugin marketplace add sebiko3/sheldon
+claude plugin install sheldon</code></pre>
         </div>
-        <p class="install-note">Replace <code>&lt;sheldon-checkout&gt;</code> with the path where you cloned the repo, e.g. <code>~/sheldon</code>. The <code>postinstall</code> step compiles the MCP server — no separate build command required.</p>
+        <p class="install-note">That's it — Sheldon is available in every Claude Code session, no <code>--plugin-dir</code> needed. Update later with <code>claude plugin update sheldon</code>.</p>
+        <h3>For development (working on Sheldon itself)</h3>
+        <div class="install-code-wrap">
+          <pre><code>git clone https://github.com/sebiko3/sheldon $SHELDON_DIR
+cd $SHELDON_DIR
+npm install
+claude --plugin-dir "$(pwd)"</code></pre>
+        </div>
         <p class="install-verify">Verify your setup at any time: <code>bin/sheldon doctor</code></p>
       </div>
     </section>

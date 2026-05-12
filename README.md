@@ -34,33 +34,22 @@ Mission state lives in plain files under `.missions/<id>/` (state.json, contract
 
 ## Install
 
-### For users
-
-Clone Sheldon to any directory of your choice, then run `npm install`. The `postinstall` hook builds the MCP server automatically — no separate `npm run build` step is needed.
+### Recommended: install via the Claude Code plugin marketplace
 
 ```bash
-git clone https://github.com/your-org/sheldon <sheldon-checkout>
-cd <sheldon-checkout>
-npm install
-claude --plugin-dir <sheldon-checkout>
+claude plugin marketplace add sebiko3/sheldon
+claude plugin install sheldon
 ```
 
-Replace `<sheldon-checkout>` with the actual path where you cloned the repo (e.g. `$HOME/tools/sheldon`).
+That's it — Sheldon is now available in every Claude Code session, no `--plugin-dir` needed. Update later with `claude plugin update sheldon`.
 
-### For development
+### For development (working on Sheldon itself)
 
 ```bash
-git clone https://github.com/your-org/sheldon $SHELDON_DIR
+git clone https://github.com/sebiko3/sheldon $SHELDON_DIR
 cd $SHELDON_DIR
-npm install        # postinstall builds the MCP server automatically
+npm install
 claude --plugin-dir "$(pwd)"
-```
-
-`npm install` is sufficient — the `postinstall` hook compiles the MCP server so there is no need to run `npm run build` separately.
-
-Inside Claude Code:
-```
-/sheldon:mission-new "your goal here"
 ```
 
 ## Usage

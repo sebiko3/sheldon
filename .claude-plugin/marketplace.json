@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "sheldon",
+  "description": "Multi-agent missions for Claude Code — Orchestrator → Worker → Validator with validation contracts",
+  "owner": {
+    "name": "sebiko3",
+    "url": "https://github.com/sebiko3"
+  },
+  "metadata": {
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "sheldon",
+      "description": "Multi-agent Missions orchestration plugin. Validation-contract-first workflow with branch-per-mission isolation, a persistent learning brain, and hooks that enforce scope discipline.",
+      "version": "0.1.0",
+      "author": {
+        "name": "sebiko3",
+        "url": "https://github.com/sebiko3"
+      },
+      "homepage": "https://github.com/sebiko3/sheldon#readme",
+      "tags": ["multi-agent", "missions", "claude-code", "automation"],
+      "source": "./"
+    }
+  ]
+}
