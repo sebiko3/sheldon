@@ -51,8 +51,8 @@ issues:
       - >-
         Links to the GitHub repo URL and to ./walkthrough.md (`grep -q
         'walkthrough.md' docs/index.html`).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF0T8XSTYR7XQ57X18ARCQT
   - id: 3
     title: Spacey-futuristic CSS theme plus lightweight starfield JS animation
     rationale: >-
