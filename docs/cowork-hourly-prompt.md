@@ -37,6 +37,16 @@ to ship one net-new capability per run.
 
 # Step 1 — Survey state (read-only, parallel)
 
+First, run the singleton guard before doing anything else:
+
+```
+python3 ${CLAUDE_PLUGIN_ROOT:-.}/scripts/cowork-singleton-check.py --max-age-minutes 10
+```
+
+If the script exits with **exit 2**, another cowork run is already in flight.
+Log one line (`skip  reason=concurrent-run`) to `docs/cowork-log.md` and exit
+immediately — do not proceed to the survey steps below.
+
 - `git status --short`, `git log --oneline -20`.
 - `mcp__plugin_sheldon_missions__list` filtered by every non-terminal phase
   (`planning`, `contract_review`, `in_progress`, `validating`, `needs_rework`).
