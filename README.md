@@ -63,7 +63,39 @@ Inside Claude Code:
 /sheldon:mission-new "your goal here"
 ```
 
-For a step-by-step example of a full mission (happy path + rejection + contamination + abort-with-cleanup), see **[docs/walkthrough.md](docs/walkthrough.md)**.
+## Usage
+
+A full mission has six beats. You drive two of them; the agents drive the rest.
+
+1. **You: start a mission.** Run `/sheldon:mission-new "<one-sentence goal>"`. The Orchestrator (the main Claude Code thread) creates `.missions/<id>/`, branches `mission/<id>` off `main`, and asks any clarifying questions it needs to write the validation contract.
+
+2. **Orchestrator: writes the contract.** A YAML frontmatter block listing numbered, executable assertions — each one a `bash -c` one-liner whose exit code 0 means the assertion holds. The contract is the spec; the implementation will be validated against it strictly.
+
+3. **You: approve.** Skim the contract, then run `/sheldon:mission-approve` (or `/sheldon:mission-approve <id>` if you have more than one mission in `contract_review`). This transitions the phase to `implementing` and the Orchestrator spawns the Worker.
+
+4. **Worker: implements.** A fresh-context subagent that only sees the mission id, reads the contract, edits code on `mission/<id>`, commits atomically, and hands off.
+
+5. **Validator: verifies.** Another fresh-context subagent, read-only. Runs every `check:` command from the contract, looks at the diff, and returns either `pass` (everything green) or `fail` with concrete findings. On fail, the Orchestrator re-spawns the Worker once with the findings; a second fail aborts.
+
+6. **Orchestrator: merges.** On `pass`, `mission/<id>` merges into `main` and the brain learns. You're done.
+
+While a mission is running, you can check progress with:
+
+```
+/sheldon:mission-status [id]          # phase + diff summary
+/sheldon:mission-list                 # everything still in flight
+/sheldon:mission-retro <id>           # one-paragraph postmortem (after termination)
+```
+
+A few power tools worth knowing:
+
+- `/sheldon:epic-new "<vague brief>"` — when the work is exploratory ("look at this repo and pull useful ideas"), the Epic Planner decomposes it into 3–7 candidate sub-missions you can selectively promote with `/sheldon:epic-promote <epic_id> <issue_id>`.
+- `/sheldon:brain-recall [topic]` — surfaces what the brain has learned about this project (conventions, lessons, capability proposals). The Orchestrator and Worker consult it automatically before planning and implementing; you can read it directly too.
+- `/sheldon:contract-lint <path>` — lint a draft contract before approval. The Orchestrator runs this automatically; you can run it manually if you're hand-editing a contract.
+- `/sheldon:missions-report` — health snapshot of the mission loop (throughput, rework rate, time-to-merge percentiles).
+- `bin/sheldon doctor` — diagnose install issues (Node version, MCP server build, plugin manifest, git availability) without launching Claude Code.
+
+For a worked end-to-end example covering the happy path, a validator rejection, a contamination event, and an abort-with-cleanup, see **[docs/walkthrough.md](docs/walkthrough.md)**.
 
 ## Slash commands
 
@@ -139,6 +171,14 @@ macOS supported today; see [docs/PLATFORM.md](docs/PLATFORM.md) for Linux compat
 ## Auth note
 
 This plugin runs *inside* Claude Code, which uses the user's Claude Pro/Max/Team/Enterprise subscription for inference — ToS-compliant first-party use. Sheldon never handles OAuth tokens itself.
+
+## Community
+
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md) — fork/branch/PR workflow, coding conventions, testing expectations.
+- **Code of conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — adopts the Contributor Covenant 2.1.
+- **Security**: [SECURITY.md](SECURITY.md) — please report vulnerabilities via private GitHub security advisory, not public issues.
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md) — release notes, Keep-a-Changelog format.
+- **Releasing**: [docs/RELEASING.md](docs/RELEASING.md) — maintainer reference for cutting a release.
 
 ## Credits
 

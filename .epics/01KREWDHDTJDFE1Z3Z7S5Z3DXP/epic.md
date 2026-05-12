@@ -15,8 +15,8 @@ issues:
       blocker.
     acceptance_sketch:
       - >-
-        /Users/sebiko83/code/sheldon/LICENSE exists and contains the SPDX header
-        'MIT License' on a line by itself
+        LICENSE exists at repo root and contains the SPDX header 'MIT License'
+        on a line by itself
       - >-
         LICENSE includes a copyright line containing the year 2026 and a holder
         name
@@ -108,18 +108,17 @@ issues:
       Rewrite README Install section for downstream users + remove hardcoded
       user path
     rationale: >-
-      README line 40 currently says `claude --plugin-dir
-      /Users/sebiko83/code/sheldon` — a hardcoded user-specific path. The
-      Install section is also entirely dev-oriented (assumes a clone).
-      Downstream users need a path that does not require cloning Sheldon's repo.
-      Track A blocker.
+      README's Install section originally hardcoded a single
+      developer-specific absolute path to the plugin checkout. The Install
+      section was also entirely dev-oriented (assumed a clone). Downstream
+      users need a path that does not require cloning Sheldon's repo. Track A
+      blocker.
     acceptance_sketch:
       - >-
-        grep -r '/Users/sebiko83' /Users/sebiko83/code/sheldon/README.md returns
-        no matches
+        grep -r '/Users/<redacted>' README.md returns no matches
       - >-
-        git ls-files | xargs grep -l '/Users/sebiko83' returns no tracked files
-        (excluding .claude/settings.local.json which is gitignored)
+        git ls-files | xargs grep -l '/Users/<redacted>' returns no tracked
+        files (excluding .claude/settings.local.json which is gitignored)
       - >-
         "README contains an '## Install' or '## Installation' section that
         documents installation without requiring a git clone (e.g. via Claude
@@ -184,8 +183,8 @@ issues:
       B.
     acceptance_sketch:
       - >-
-        /Users/sebiko83/code/sheldon/CHANGELOG.md exists and contains a
-        top-level header matching '# Changelog'
+        CHANGELOG.md exists at repo root and contains a top-level header
+        matching '# Changelog'
       - >-
         "CHANGELOG.md contains a section header matching the current
         package.json version (e.g. '## [0.1.0]' or '## 0.1.0')"
