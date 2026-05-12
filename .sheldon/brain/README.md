@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **distribution:self-marketplace** [high] _(evidence: 01KRF7KJNBSQVBTVXMEWVKC5G2)_
+  Claude Code plugins distribute via the built-in marketplace system. A repo can serve as its own single-plugin marketplace by adding .claude-plugin/marketplace.json with name/owner/plugins where the sheldon entry uses source: "./" (NOT "." — claude plugin validate only accepts the trailing-slash form). Users install with two commands: claude plugin marketplace add <owner>/<repo>; claude plugin install sheldon. No --plugin-dir needed; plugin auto-loads across all Claude Code sessions.
+
 - **landing-page:zero-build** [high] _(evidence: 01KRF0GSKTQP83TYGRSBF525RF)_
   The GitHub Pages landing lives at docs/index.html + docs/assets/{style.css,main.js,og-image.png}. .nojekyll disables Jekyll so existing docs/*.md files stay accessible as raw markdown. No framework, no npm build step, no CDN. Total critical-path under 200KB.
 
@@ -51,6 +54,9 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 ## Lessons
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
+
+- **contract-yaml:bash-hex-escapes** [high] _(evidence: 01KRF7D7XTH8DNZEVTFQGH16E6)_
+  Bash grep does NOT interpret \x22/\x27 hex escapes inside the regex unless wrapped in ANSI-C quoting ($"..."). Putting them in a plain check: value makes grep search for the literal characters \x22 and \x27, which never match real source. Caught on mission 01KRF7D7XTH8DNZEVTFQGH16E6 — two regression checks failed because of this. Use simple greps or python re for character-class assertions.
 
 - **stdlib-png-generation** [high] _(evidence: 01KRF1SGE8G3CSZHVFNQTDERNK)_
   PIL is not stdlib. To generate small PNGs (e.g. og-images, badges) from pure-stdlib Python: use struct + zlib to write magic bytes, IHDR chunk (width/height/bit-depth/color-type), IDAT chunk (zlib-compressed scanlines with leading filter byte), IEND. CRC32 each chunk type+data. A 1200x630 RGB image with mostly-uniform background compresses to <10KB even with random pixel noise. scripts/gen-og-image.py is the reference implementation.
