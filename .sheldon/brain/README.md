@@ -43,6 +43,9 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
 
+- **contract-yaml:check-value-colon-space** [high] _(evidence: 01KREWNYFVVG9KZBV0Q6A6W1A9)_
+  The YAML colon-space gotcha applies to check: values, not just description: values. If a check command embeds a literal ": " substring (e.g. grep -q "foo: bar" file), the value must be double-quoted at the YAML level (check: "grep -q ..."). Otherwise gray-matter parses the ": " as a key-value separator and run_assertions returns 0 results. Caught on mission 01KREWNYFVVG9KZBV0Q6A6W1A9. Supersedes the narrower lesson 01KRCPXS4XQWWGDFH91HY6YFZ3.
+
 - **mcp-server:write_contract-no-self-transition** [high] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
   mcp__plugin_sheldon_missions__write_contract throws "Illegal phase transition: contract_review → contract_review" if called while already in contract_review. The state machine has no self-loop for that phase. Workaround for the orchestrator: write directly to .missions/<id>/contract.md (the main thread is allowed to write there; the PreToolUse hook only blocks subagents). Better fix would be a write_contract that allows in-place rewriting before approve.
 
@@ -61,9 +64,6 @@ Meta-rules distilled from past mission outcomes — apply these to future contra
 - **cowork:concurrency** [high] _(evidence: 01KRCR9GG78PM3KNHZ0JSPQC2Z)_
   Two cowork sessions can race past Step 1 if they both survey state within the same few seconds — both will see zero non-terminal missions and proceed. The second-to-mark mission is wasted work. Mitigation: add a singleton-guard check at the very top of the routine that re-checks .missions/*/state.json for a non-terminal mission younger than ~10 minutes and exits with skip if found. ULID order is the natural tie-breaker (older ULID wins).
 
-- **yaml-frontmatter** [high]
-  Contract YAML frontmatter descriptions containing the substring `: ` must be double-quoted; gray-matter parsing fails silently otherwise and run_assertions returns empty.
-
 - **skill-attribution** [high]
   Attribution for ported skills lives in README.md, not in SKILL.md footers. Trailing metadata inside a skill body competes with its instructions for the model attention and degrades skill performance.
 
@@ -79,7 +79,10 @@ Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-
 
 ## Capability proposals
 
-Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Fed into the cowork loop.
+Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Surface via brain_recall --type proposal; promote into missions.
+
+- **contract-lint:check-value-colon-space** [high] _(evidence: 01KREWNYFVVG9KZBV0Q6A6W1A9)_
+  scripts/contract-lint.py currently only flags unquoted colon-space in description: values. Extend it to also flag the same pattern in check: values. Would have caught mission 01KREWNYFVVG9KZBV0Q6A6W1A9 contract before approval.
 
 - **mcp-server:write_contract-self-transition** [medium] _(evidence: 01KRDHSM5J2AW5TWMREKRVX8SS)_
   Patch mcp/missions-server/src/tools.ts handleWriteContract to allow contract_review → contract_review (no-op transition) so the orchestrator can iterate on a draft before approving. Currently the orchestrator has to side-step the MCP API by writing the file directly. One-line tools.ts fix: skip the transitionPhase call when state.phase is already contract_review.
