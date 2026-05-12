@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **mission-state-json:validation-tallies** [high] _(evidence: 01KRDG9FQ1RDVNWCV0EFKW1BCJ)_
+  .missions/<id>/state.json validation_runs[] contains verdict pre-extracted by the orchestrator. Scripts reading mission outcomes can use it as the authoritative tally source — no need to also parse validations/*.md, which contain only the findings prose.
+
 - **orchestrator:lint-before-write** [high] _(evidence: 01KRDG1DKFK3W5F2EAMZCXY8W4)_
   When writing a contract, the Orchestrator writes the draft to .missions/<id>/contract.md, runs python3 ${CLAUDE_PLUGIN_ROOT:-.}/scripts/contract-lint.py on it via Bash, and refuses to proceed to write_contract if it exits non-zero. This is now codified in agents/orchestrator.md step 5 of the /sheldon:mission-new flow.
 
@@ -61,6 +64,9 @@ _(none yet)_
 ## Capability proposals
 
 Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Fed into the cowork loop.
+
+- **mission-retro:full-handoff-paragraph** [medium] _(evidence: 01KRDG9FQ1RDVNWCV0EFKW1BCJ)_
+  scripts/mission-retro.py summarise_handoffs() extracts only the first paragraph of each handoff. When handoffs begin with a bare title line (e.g., "# Worker handoff — ID"), the synthesis field shows only that title. Improve by skipping leading heading-only paragraphs or by extracting from the first prose paragraph. Caught on mission 01KRDG9FQ1RDVNWCV0EFKW1BCJ.
 
 - **cowork-singleton-check:parse_iso-non-string** [medium] _(evidence: 01KRDF1MCBK80KMCM2BXPSE9M3)_
   scripts/cowork-singleton-check.py parse_iso() crashes with AttributeError when state.json has a non-string created_at (e.g., integer timestamp), producing exit 1 + traceback. Add an isinstance(ts, str) guard. Caught by validator on mission 01KRDF1MCBK80KMCM2BXPSE9M3 — non-blocking, but worth a 1-line follow-on.
