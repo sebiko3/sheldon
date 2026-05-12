@@ -63,8 +63,52 @@
         </div>
       </div>
     </section>
-    <section id="features"><!-- issue 5 fills this --></section>
-    <section id="terminal"><!-- issue 5 fills this --></section>
+    <section id="features">
+      <div class="container">
+        <h2>Built for serious work</h2>
+        <div class="card-grid">
+          <article class="card">
+            <h3>Missions</h3>
+            <p>Every feature ships as a mission: Orchestrator drafts the contract, Worker implements on a dedicated <code>mission/&lt;id&gt;</code> branch, Validator adversarially verifies. Branch-per-mission isolation keeps main clean.</p>
+          </article>
+          <article class="card">
+            <h3>Validation contracts</h3>
+            <p>Every change is gated by a contract of executable assertions. The Validator runs each check command and fails the mission if any assertion does not pass — no merge without proof.</p>
+          </article>
+          <article class="card">
+            <h3>The brain</h3>
+            <p>A persistent learning layer accumulates conventions, lessons, and capability proposals per project. The Orchestrator consults the brain before drafting contracts so the same mistake never ships twice.</p>
+          </article>
+          <article class="card">
+            <h3>Lifecycle hooks</h3>
+            <p>PreToolUse and PostToolUse hooks enforce contract immutability, scope discipline, and pre-merge scope-creep advisories. The system is self-policing by design.</p>
+          </article>
+          <article class="card">
+            <h3>/sheldon: slash commands</h3>
+            <p>Drive the entire workflow from the Claude Code chat: <code>/sheldon:mission-new</code>, <code>/sheldon:mission-approve</code>, <code>/sheldon:mission-retro</code>, and more — no context-switching required.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section id="terminal">
+      <div class="container">
+        <h2>From prompt to merge</h2>
+        <div class="terminal-window">
+          <pre><code><span class="t-prompt">$</span> /sheldon:mission-new "add dark mode toggle"
+<span class="t-system">Orchestrator: drafted contract with 5 assertions. Run /sheldon:mission-approve &lt;id&gt;.</span>
+
+<span class="t-prompt">$</span> /sheldon:mission-approve 01K...
+<span class="t-system">Worker → implementing on mission/01K...
+Validator → 5/5 assertions passed.
+Orchestrator → merged mission/01K... into main.</span>
+
+<span class="t-prompt">$</span> /sheldon:mission-retro 01K...
+<span class="t-system">Mission 01K... (done): added dark mode toggle.
+Built across 4 commits, 11.3m end-to-end, validator passed on first try.
+Clean happy-path merge.</span></code></pre>
+        </div>
+      </div>
+    </section>
     <section id="install"><!-- issue 6 fills this --></section>
   </main>
 
