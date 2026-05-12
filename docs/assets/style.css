@@ -284,3 +284,113 @@ footer {
     width: 100%;
   }
 }
+
+/* ── Features ── */
+
+#features {
+  text-align: center;
+}
+
+#features h2 {
+  margin-bottom: 3rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.card {
+  padding: 1.5rem 1.25rem;
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  background-color: rgba(10, 15, 30, 0.7);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.1), inset 0 0 10px rgba(34, 211, 238, 0.03);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(125, 249, 255, 0.22), inset 0 0 16px rgba(125, 249, 255, 0.05);
+}
+
+.card h3 {
+  color: var(--accent);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.card p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 100%;
+}
+
+/* ── Terminal ── */
+
+#terminal {
+  text-align: center;
+}
+
+#terminal h2 {
+  margin-bottom: 2.5rem;
+}
+
+.terminal-window {
+  position: relative;
+  background-color: #040c16;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(125, 249, 255, 0.08), inset 0 0 20px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  text-align: left;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.terminal-window::before {
+  content: "\25CF  \25CF  \25CF";
+  display: block;
+  padding: 0.6rem 1rem;
+  background-color: #0a1220;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.4em;
+}
+
+.terminal-window pre {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 1.5rem 1.75rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--fg);
+  overflow-x: auto;
+}
+
+.terminal-window pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--fg);
+}
+
+.t-prompt {
+  color: var(--accent);
+  font-weight: 700;
+  user-select: none;
+}
+
+.t-system {
+  color: var(--muted);
+}

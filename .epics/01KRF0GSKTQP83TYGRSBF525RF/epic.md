@@ -125,8 +125,8 @@ issues:
         reviewer note in mission handoff; mechanical check: `grep -qi
         'orchestrator' docs/index.html && grep -qi 'validator'
         docs/index.html`).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF1C8M5YMHP768PTCN7A097
   - id: 6
     title: >-
       Install section mirroring README For-users plus footer with community
