@@ -11,6 +11,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "mcp__plugin_sheldon_missions__merge",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-merge-scope-check.sh",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PostToolUse": [
