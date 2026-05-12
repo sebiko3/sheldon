@@ -173,8 +173,8 @@ issues:
       - >-
         bin/sheldon (no args) and bin/sheldon doctor share the same shebang and
         pass `bash -n` with no errors
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREXYFBAF6WBFN0F6ZDVZ78A
   - id: 8
     title: Establish CHANGELOG.md + release tagging convention
     rationale: >-

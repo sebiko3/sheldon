@@ -15,6 +15,62 @@ while [ -L "$script" ]; do
 done
 REPO_ROOT="$(cd "$(dirname "$script")/.." && pwd)"
 
+# Doctor subcommand: run diagnostics and exit without invoking claude.
+if [ "${1:-}" = "doctor" ]; then
+  failures=0
+
+  # 1. Node >= 20
+  if command -v node >/dev/null 2>&1; then
+    node_ver="$(node --version)"
+    node_major="${node_ver#v}"
+    node_major="${node_major%%.*}"
+    if [ "$node_major" -ge 20 ] 2>/dev/null; then
+      echo "[ok] node $node_ver"
+    else
+      echo "[fail] node too old (need >=20, got $node_ver)"
+      failures=1
+    fi
+  else
+    echo "[fail] node missing"
+    failures=1
+  fi
+
+  # 2. mcp/missions-server/dist/index.js
+  if [ -f "$REPO_ROOT/mcp/missions-server/dist/index.js" ]; then
+    echo "[ok] mcp server dist/index.js present"
+  else
+    echo "[fail] mcp server dist/index.js missing — run npm install"
+    failures=1
+  fi
+
+  # 3. mcp/missions-server/dist/brain.js
+  if [ -f "$REPO_ROOT/mcp/missions-server/dist/brain.js" ]; then
+    echo "[ok] mcp brain.js present"
+  else
+    echo "[fail] mcp brain.js missing — incomplete build"
+    failures=1
+  fi
+
+  # 4. .claude-plugin/plugin.json exists and parses as valid JSON
+  plugin_json="$REPO_ROOT/.claude-plugin/plugin.json"
+  if [ -f "$plugin_json" ] && python3 -c "import json; json.load(open('$plugin_json'))" 2>/dev/null; then
+    echo "[ok] plugin manifest valid"
+  else
+    echo "[fail] plugin manifest missing/invalid"
+    failures=1
+  fi
+
+  # 5. git binary available
+  if command -v git >/dev/null 2>&1; then
+    echo "[ok] git found"
+  else
+    echo "[fail] git missing"
+    failures=1
+  fi
+
+  exit "$failures"
+fi
+
 # Build the MCP server from the repo, but don't change the caller's $PWD —
 # Claude Code and the MCP server use it to decide where .missions/ and
 # .epics/ live, so preserving it lets `sheldon` be invoked from any project.
