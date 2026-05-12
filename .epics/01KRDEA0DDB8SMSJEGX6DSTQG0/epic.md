@@ -95,8 +95,8 @@ issues:
       - >-
         skills/missions-gc/SKILL.md exists with quoted frontmatter; README.md
         row added
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRDH26YJSRHX6M6XCVK2DVDA
   - id: 5
     title: Add brain dedup utility to fold near-duplicate entries
     rationale: >-
