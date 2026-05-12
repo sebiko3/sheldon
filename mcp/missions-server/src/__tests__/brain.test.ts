@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { execSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
@@ -75,6 +75,8 @@ describe("brain MCP tools", () => {
       topic: "skill: mission-retro",
       text: "Draft a postmortem from contract + handoffs.",
     });
+    // Ensure distinct millisecond timestamps so the sort order is deterministic.
+    await new Promise((r) => setTimeout(r, 2));
     await handleBrainObserve({
       type: "proposal",
       topic: "hook: pre-merge scope guard",
@@ -120,5 +122,24 @@ describe("brain MCP tools", () => {
     const reloaded = brain.listEntries();
     expect(reloaded.length).toBeGreaterThanOrEqual(5);
     expect(reloaded.every((e) => typeof e.id === "string")).toBe(true);
+  });
+
+  it("loads seed.jsonl as a read-only baseline when entries.jsonl is absent", async () => {
+    // Write a seed.jsonl to the module's already-initialised TMP brain dir.
+    // The module's repoRoot() is fixed to TMP at import time, so we write there.
+    const brainDir = path.join(TMP, ".sheldon", "brain");
+    mkdirSync(brainDir, { recursive: true });
+    const seedEntry = JSON.stringify({
+      id: "01SEEDTEST0000000000000000",
+      type: "convention",
+      topic: "seed-baseline",
+      text: "This entry comes from seed.jsonl only.",
+      confidence: "high",
+      created_at: "2026-01-01T00:00:00.000Z",
+    });
+    writeFileSync(path.join(brainDir, "seed.jsonl"), seedEntry + "\n");
+
+    const entries = brain.recall();
+    expect(entries.find((e) => e.id === "01SEEDTEST0000000000000000")).toBeTruthy();
   });
 });

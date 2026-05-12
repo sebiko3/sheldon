@@ -41,6 +41,10 @@ function entriesPath(): string {
   return path.join(brainDir(), "entries.jsonl");
 }
 
+function seedPath(): string {
+  return path.join(brainDir(), "seed.jsonl");
+}
+
 function digestPath(): string {
   return path.join(brainDir(), "README.md");
 }
@@ -49,10 +53,9 @@ function ensureBrainDir(): void {
   mkdirSync(brainDir(), { recursive: true });
 }
 
-export function listEntries(): BrainEntry[] {
-  const p = entriesPath();
-  if (!existsSync(p)) return [];
-  const raw = readFileSync(p, "utf8");
+function parseJsonl(filePath: string): BrainEntry[] {
+  if (!existsSync(filePath)) return [];
+  const raw = readFileSync(filePath, "utf8");
   const out: BrainEntry[] = [];
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
@@ -65,6 +68,14 @@ export function listEntries(): BrainEntry[] {
     }
   }
   return out;
+}
+
+export function listEntries(): BrainEntry[] {
+  // seed.jsonl is the tracked curated baseline (ships with the plugin, never
+  // written at runtime). entries.jsonl is gitignored and accumulates per-env
+  // observations from observe(). Return seed first so tombstones in entries
+  // can supersede seed entries via the last-write-wins fold in activeEntries().
+  return [...parseJsonl(seedPath()), ...parseJsonl(entriesPath())];
 }
 
 export function observe(input: {
