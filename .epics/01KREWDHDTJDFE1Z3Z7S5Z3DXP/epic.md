@@ -77,8 +77,8 @@ issues:
         After brain_observe creates entries.jsonl in a fresh fixture repo,
         subsequent brain_list returns both the new entry and the seed entries
         (seed is read-only baseline; never written back to)
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREX23N8CRPHN3DHQKWS8K75
   - id: 4
     title: Add postinstall script that builds the MCP server
     rationale: >-
