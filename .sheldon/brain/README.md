@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **landing-page:zero-build** [high] _(evidence: 01KRF0GSKTQP83TYGRSBF525RF)_
+  The GitHub Pages landing lives at docs/index.html + docs/assets/{style.css,main.js,og-image.png}. .nojekyll disables Jekyll so existing docs/*.md files stay accessible as raw markdown. No framework, no npm build step, no CDN. Total critical-path under 200KB.
+
 - **releases:three-manifests-plus-changelog** [high] _(evidence: 01KREY3T509B6D3M4J40GYJSHV)_
   A Sheldon release bumps versions in three manifests in lockstep (package.json, mcp/missions-server/package.json, .claude-plugin/plugin.json), flips CHANGELOG Unreleased → dated version, creates annotated git tag v<version>, pushes with --follow-tags. docs/RELEASING.md is the canonical procedural reference.
 
@@ -48,6 +51,9 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 ## Lessons
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
+
+- **stdlib-png-generation** [high] _(evidence: 01KRF1SGE8G3CSZHVFNQTDERNK)_
+  PIL is not stdlib. To generate small PNGs (e.g. og-images, badges) from pure-stdlib Python: use struct + zlib to write magic bytes, IHDR chunk (width/height/bit-depth/color-type), IDAT chunk (zlib-compressed scanlines with leading filter byte), IEND. CRC32 each chunk type+data. A 1200x630 RGB image with mostly-uniform background compresses to <10KB even with random pixel noise. scripts/gen-og-image.py is the reference implementation.
 
 - **brain:seed-vs-entries-split** [high] _(evidence: 01KREX23N8CRPHN3DHQKWS8K75)_
   For per-project state where some content is team-shared (the curated baseline) and some is per-environment (accumulated observations), use a two-file split: tracked seed.jsonl + gitignored entries.jsonl. listEntries() concatenates seed then entries. observe() writes only to entries. Tombstones in entries can supersede seed entries via last-write-wins fold. Pattern applies beyond the brain.
@@ -92,6 +98,9 @@ Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-
 ## Capability proposals
 
 Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Surface via brain_recall --type proposal; promote into missions.
+
+- **og-image:typography** [low] _(evidence: 01KRF1SGE8G3CSZHVFNQTDERNK)_
+  Current og-image.png is a starfield with no text. A polish mission could render the word SHELDON via hand-coded 7-letter pixel glyphs (no font library needed) for better social previews. Optional follow-up.
 
 - **readme:repo-url-consistency** [medium] _(evidence: 01KREXN8E6VPJBQT3T36V8C19J)_
   README Install section uses your-org/sheldon as a placeholder repo URL, while package.json/plugin.json now point to github.com/sebiko3/sheldon. Make them consistent — either standardize on a real org or universally use a placeholder. Cosmetic, but readers will paste your-org and 404.
