@@ -128,8 +128,8 @@ issues:
       - >-
         README Install section explicitly mentions running an MCP server build
         step OR documents that postinstall handles it automatically
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREXN8E6VPJBQT3T36V8C19J
   - id: 6
     title: 'Add GitHub Actions CI: build + test on PRs'
     rationale: >-

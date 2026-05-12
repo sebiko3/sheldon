@@ -32,13 +32,31 @@ Orchestrator (main thread)
 
 Mission state lives in plain files under `.missions/<id>/` (state.json, contract.md, handoffs/, validations/) — git-friendly, easy to inspect, easy for the TUI to watch.
 
-## Install (development)
+## Install
+
+### For users
+
+Clone Sheldon to any directory of your choice, then run `npm install`. The `postinstall` hook builds the MCP server automatically — no separate `npm run build` step is needed.
 
 ```bash
+git clone https://github.com/your-org/sheldon <sheldon-checkout>
+cd <sheldon-checkout>
 npm install
-npm run build
-claude --plugin-dir /Users/sebiko83/code/sheldon
+claude --plugin-dir <sheldon-checkout>
 ```
+
+Replace `<sheldon-checkout>` with the actual path where you cloned the repo (e.g. `$HOME/tools/sheldon`).
+
+### For development
+
+```bash
+git clone https://github.com/your-org/sheldon $SHELDON_DIR
+cd $SHELDON_DIR
+npm install        # postinstall builds the MCP server automatically
+claude --plugin-dir "$(pwd)"
+```
+
+`npm install` is sufficient — the `postinstall` hook compiles the MCP server so there is no need to run `npm run build` separately.
 
 Inside Claude Code:
 ```
