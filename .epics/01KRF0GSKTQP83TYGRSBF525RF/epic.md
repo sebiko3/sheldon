@@ -174,8 +174,8 @@ issues:
       - >-
         No file under docs/assets/ exceeds 50KB individually (`find docs/assets
         -type f -size +50k | wc -l` == 0).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF1SGE8G3CSZHVFNQTDERNK
 ---
 
 # Epic 01KRF0GSKTQP83TYGRSBF525RF
