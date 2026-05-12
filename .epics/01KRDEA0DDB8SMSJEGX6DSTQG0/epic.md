@@ -123,8 +123,8 @@ issues:
       - >-
         skills/brain-dedup/SKILL.md exists with quoted frontmatter; README row
         added
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRDHDE59MP45TSBEX5M3VKBY
   - id: 6
     title: Add pre-merge scope-creep advisory hook
     rationale: >-
