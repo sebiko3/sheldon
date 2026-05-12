@@ -101,8 +101,8 @@ issues:
       - >-
         package.json scripts.prepare is either absent or identical to
         scripts.postinstall (no conflicting hooks)
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREXGZ4Q093PDNJ9Z2RX4G09
   - id: 5
     title: >-
       Rewrite README Install section for downstream users + remove hardcoded
