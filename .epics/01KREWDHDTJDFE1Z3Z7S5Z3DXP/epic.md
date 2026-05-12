@@ -146,8 +146,8 @@ issues:
       - >-
         ci.yml matrix or single job runs on ubuntu-latest (proves Linux
         compatibility goal)
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREXTPQX1RXC8APN5Z5MRVM4
   - id: 7
     title: Add `bin/sheldon doctor` diagnostic subcommand
     rationale: >-
