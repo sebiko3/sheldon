@@ -131,50 +131,73 @@
 
   window.addEventListener('resize', onResize, { passive: true });
 
-  // ── Matrix-scramble effect on the hero title ──────────────────────────────
+  // ── Matrix-scramble effect on headings ────────────────────────────────────
   // Each character cycles through random glyphs before locking in. Uses RAF
-  // (no setInterval — per project convention). Cyan glow styling lives in CSS.
-  // After the initial run the effect re-triggers at random intervals between
-  // REPEAT_MIN_MS and REPEAT_MAX_MS for a subtle "the system is alive" feel.
-  const heroTitle = document.getElementById('hero-title');
-  if (heroTitle && !reducedMotion) {
-    const target = heroTitle.dataset.text || heroTitle.textContent;
+  // for the animation loop (no setInterval — per project convention).
+  // Triggers on viewport entry via IntersectionObserver; the hero title also
+  // re-runs at random intervals so the centerpiece stays alive.
+  if (!reducedMotion) {
     const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
-    const lockDelayPerChar = 260; // ms before character N stops scrambling
-    const frameMs = 80;           // visible character cycle time
-    const REPEAT_MIN_MS = 18000;  // shortest pause between re-runs
-    const REPEAT_MAX_MS = 45000;  // longest pause between re-runs
+    const LOCK_DELAY_PER_CHAR = 260; // ms before character N stops scrambling
+    const FRAME_MS = 80;             // visible character cycle time
+    const HERO_REPEAT_MIN_MS = 18000;
+    const HERO_REPEAT_MAX_MS = 45000;
 
-    function runScramble() {
-      heroTitle.classList.add('scrambling');
+    function scramble(el, onDone) {
+      const target = el.dataset.text || el.textContent;
+      el.classList.add('scrambling');
       const startTime = performance.now();
       let lastFrame = 0;
 
-      function scrambleFrame(now) {
+      function frame(now) {
         const elapsed = now - startTime;
-        if (now - lastFrame >= frameMs) {
+        if (now - lastFrame >= FRAME_MS) {
           const out = Array.from(target, (ch, i) => {
-            if (elapsed >= lockDelayPerChar * (i + 1)) return ch;
+            if (elapsed >= LOCK_DELAY_PER_CHAR * (i + 1)) return ch;
             return glyphs[Math.floor(Math.random() * glyphs.length)];
           }).join('');
-          heroTitle.textContent = out;
+          el.textContent = out;
           lastFrame = now;
           if (out === target) {
-            heroTitle.classList.remove('scrambling');
-            scheduleNext();
+            el.classList.remove('scrambling');
+            if (onDone) onDone();
             return;
           }
         }
-        requestAnimationFrame(scrambleFrame);
+        requestAnimationFrame(frame);
       }
-      requestAnimationFrame(scrambleFrame);
+      requestAnimationFrame(frame);
     }
 
-    function scheduleNext() {
-      const delay = REPEAT_MIN_MS + Math.random() * (REPEAT_MAX_MS - REPEAT_MIN_MS);
-      setTimeout(runScramble, delay);
+    // Hero: scramble immediately + repeat at random intervals.
+    const heroTitle = document.getElementById('hero-title');
+    if (heroTitle) {
+      const scheduleNext = () => {
+        const delay = HERO_REPEAT_MIN_MS + Math.random() * (HERO_REPEAT_MAX_MS - HERO_REPEAT_MIN_MS);
+        setTimeout(() => scramble(heroTitle, scheduleNext), delay);
+      };
+      scramble(heroTitle, scheduleNext);
     }
 
-    runScramble();
+    // Every other [data-text] heading: scramble once, the first time it
+    // scrolls into view. Disconnect after firing so it doesn't re-trigger
+    // on every scroll.
+    const others = Array.from(document.querySelectorAll('[data-text]')).filter((el) => el !== heroTitle);
+    if (others.length) {
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries, observer) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              scramble(entry.target);
+              observer.unobserve(entry.target);
+            }
+          }
+        }, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
+        for (const el of others) io.observe(el);
+      } else {
+        // No IO support: just scramble them all up front.
+        for (const el of others) scramble(el);
+      }
+    }
   }
 }());

@@ -169,8 +169,10 @@ footer {
   min-height: 1.1em;
 }
 
-#hero h1.scrambling {
-  /* Brighter, jittery glow during scramble — settles when the text locks. */
+/* Generic scramble state applied via JS to any [data-text] heading.
+   The brighter glow makes the in-progress flip visually distinct from
+   the resting state and settles when the text locks. */
+.scrambling {
   text-shadow: 0 0 18px var(--accent), 0 0 36px var(--accent), 0 0 72px rgba(125, 249, 255, 0.6);
 }
 
