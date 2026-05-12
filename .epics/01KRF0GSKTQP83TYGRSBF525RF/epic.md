@@ -76,8 +76,8 @@ issues:
         No external script/style URLs in index.html: zero matches for
         `src="http` or external CSS hrefs (`! grep -E
         'src="https?://|href="https?://[^"]+\.css' docs/index.html`).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF0ZJF4Z7FVT09367WXB7T9
   - id: 4
     title: Hero plus How-it-works flow (Orchestrator -> Worker -> Validator)
     rationale: >-
