@@ -8,3 +8,7 @@
 6. Optionally create a GitHub release from the tag (copy the CHANGELOG section as release notes).
 
 Note: this process can later be automated via release-please but is intentionally manual for now.
+
+## Enabling GitHub Pages (one-time)
+
+In the GitHub repository, go to **Settings → Pages → Source** and choose **Deploy from a branch**. Set the branch to `main` and the folder to `/docs`. Click **Save**. The site will be live within ~60 seconds at `https://<owner>.github.io/<repo>/`.
