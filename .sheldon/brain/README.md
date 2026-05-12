@@ -6,6 +6,12 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **releases:three-manifests-plus-changelog** [high] _(evidence: 01KREY3T509B6D3M4J40GYJSHV)_
+  A Sheldon release bumps versions in three manifests in lockstep (package.json, mcp/missions-server/package.json, .claude-plugin/plugin.json), flips CHANGELOG Unreleased → dated version, creates annotated git tag v<version>, pushes with --follow-tags. docs/RELEASING.md is the canonical procedural reference.
+
+- **distribution:postinstall-builds-mcp** [high] _(evidence: 01KREXGZ4Q093PDNJ9Z2RX4G09)_
+  Top-level package.json has postinstall=npm run build --workspace mcp/missions-server so users do not have to remember a manual build step. Downstream installs are one npm install away from a working MCP server.
+
 - **brain-tools:read-only-default** [high] _(evidence: 01KRDHDE59MP45TSBEX5M3VKBY)_
   Brain-adjacent scripts (brain-dedup, future brain-search/etc) are read-only on .sheldon/brain/ by construction. Mutation happens exclusively through mcp__plugin_sheldon_missions__brain_observe (which routes through brain.ts and appends to entries.jsonl atomically). This invariant is mechanically enforced: never-writes-brain assertion greps for write-mode open calls against brain paths.
 
@@ -42,6 +48,12 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 ## Lessons
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
+
+- **brain:seed-vs-entries-split** [high] _(evidence: 01KREX23N8CRPHN3DHQKWS8K75)_
+  For per-project state where some content is team-shared (the curated baseline) and some is per-environment (accumulated observations), use a two-file split: tracked seed.jsonl + gitignored entries.jsonl. listEntries() concatenates seed then entries. observe() writes only to entries. Tombstones in entries can supersede seed entries via last-write-wins fold. Pattern applies beyond the brain.
+
+- **distribution:license-first** [high] _(evidence: 01KREWNYFVVG9KZBV0Q6A6W1A9)_
+  A LICENSE file at the repo root is the cheapest distribution unblocker — single mission, half a dozen assertions, makes the difference between legally distributable and not. Always ship this before announcing anything.
 
 - **contract-yaml:check-value-colon-space** [high] _(evidence: 01KREWNYFVVG9KZBV0Q6A6W1A9)_
   The YAML colon-space gotcha applies to check: values, not just description: values. If a check command embeds a literal ": " substring (e.g. grep -q "foo: bar" file), the value must be double-quoted at the YAML level (check: "grep -q ..."). Otherwise gray-matter parses the ": " as a key-value separator and run_assertions returns 0 results. Caught on mission 01KREWNYFVVG9KZBV0Q6A6W1A9. Supersedes the narrower lesson 01KRCPXS4XQWWGDFH91HY6YFZ3.
