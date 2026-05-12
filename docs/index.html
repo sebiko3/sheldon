@@ -31,8 +31,38 @@
   </header>
 
   <main>
-    <section id="hero"><!-- issue 4 fills this --></section>
-    <section id="how-it-works"><!-- issue 4 fills this --></section>
+    <section id="hero">
+      <div class="container hero-inner">
+        <h1>Sheldon</h1>
+        <p class="hero-tagline">Multi-agent missions for Claude Code</p>
+        <p class="hero-body">A Claude Code plugin that runs missions — a multi-agent workflow where an Orchestrator drafts a validation contract, a Worker implements it on a dedicated branch, and a Validator adversarially verifies the result. Ship features atomically, with proof.</p>
+        <a href="#install" class="cta-btn">Get started</a>
+      </div>
+    </section>
+    <section id="how-it-works">
+      <div class="container">
+        <h2>How it works</h2>
+        <div class="pipeline">
+          <div class="role">
+            <span class="role-label">Orchestrator</span>
+            <span class="role-model">(opus)</span>
+            <p>Plans the feature, writes the validation contract, and drives the mission loop.</p>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">&#x2192;</span>
+          <div class="role">
+            <span class="role-label">Worker</span>
+            <span class="role-model">(sonnet)</span>
+            <p>Implements the feature on a dedicated <code>mission/&lt;id&gt;</code> branch.</p>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">&#x2192;</span>
+          <div class="role">
+            <span class="role-label">Validator</span>
+            <span class="role-model">(haiku)</span>
+            <p>Adversarially verifies the implementation against the contract.</p>
+          </div>
+        </div>
+      </div>
+    </section>
     <section id="features"><!-- issue 5 fills this --></section>
     <section id="terminal"><!-- issue 5 fills this --></section>
     <section id="install"><!-- issue 6 fills this --></section>
