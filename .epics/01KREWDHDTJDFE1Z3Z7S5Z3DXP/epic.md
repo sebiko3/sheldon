@@ -217,8 +217,8 @@ issues:
         A unit test under tui/src/__tests__/ exercises notify on a stubbed
         non-darwin platform and asserts spawn was not called
       - README 'Platform' section contains a markdown link to docs/PLATFORM.md
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREY8DBAY6GZZE4M5NHF18FF
 ---
 
 # Epic 01KREWDHDTJDFE1Z3Z7S5Z3DXP
