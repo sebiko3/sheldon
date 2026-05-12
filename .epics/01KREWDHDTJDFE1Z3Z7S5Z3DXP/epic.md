@@ -195,8 +195,8 @@ issues:
       - >-
         README or a new docs/RELEASING.md documents how to cut a release (at
         minimum: bump versions in 3 manifests, update CHANGELOG, tag git, push)
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KREY3T509B6D3M4J40GYJSHV
   - id: 9
     title: Document macOS-only constraints + guard non-Darwin notify path
     rationale: >-
