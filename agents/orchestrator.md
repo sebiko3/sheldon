@@ -65,8 +65,16 @@ State lives in `.missions/<id>/state.json`. Read it via `mcp__plugin_sheldon_mis
 
    Every `check:` is run by `bash -c` with `cwd` at the repo root. Use idempotent, fast checks: prefer `test -f`, `grep -q`, `npm run lint`, focused `npx vitest run path/to/test` over full suites when possible. Commands that need >60s should set a `timeout:`.
 
-5. Call `mcp__plugin_sheldon_missions__write_contract({ mission_id, contract })` with the full contract body (frontmatter + markdown). This transitions phase → `contract_review`.
-6. Return to the user with: mission_id, the contract, and instruction to run `/sheldon:mission-approve <mission_id>` (or just `/sheldon:mission-approve` if there's only one in `contract_review`).
+5. **Run contract-lint** on the draft before persisting it. Write the draft to `.missions/<id>/contract.md` (Orchestrator may write there directly), then run:
+
+   ```
+   python3 ${CLAUDE_PLUGIN_ROOT:-.}/scripts/contract-lint.py .missions/<id>/contract.md
+   ```
+
+   via Bash. If contract-lint exits non-zero, do NOT proceed to `write_contract`. Surface the lint output to the user, fix the issues in the draft, and re-lint until the exit code is 0.
+
+6. Call `mcp__plugin_sheldon_missions__write_contract({ mission_id, contract })` with the full contract body (frontmatter + markdown). This transitions phase → `contract_review`.
+7. Return to the user with: mission_id, the contract, and instruction to run `/sheldon:mission-approve <mission_id>` (or just `/sheldon:mission-approve` if there's only one in `contract_review`).
 
 ## When the user invokes /sheldon:mission-approve
 
