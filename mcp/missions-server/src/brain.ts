@@ -203,7 +203,7 @@ export function regenerateDigest(): string {
       type: "proposal",
       title: "Capability proposals",
       intro:
-        "Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Fed into the cowork loop.",
+        "Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Surface via brain_recall --type proposal; promote into missions.",
     },
   ];
 

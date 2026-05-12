@@ -66,7 +66,7 @@ For a step-by-step example of a full mission (happy path + rejection + contamina
 | `/sheldon:brain-learn <mission_id>` | After a mission terminates (merge/abort/twice-fail), distill its contract + handoffs + validations into durable brain entries the next mission inherits. |
 | `/sheldon:brain-list` | Dump every active brain entry plus per-type counts; pointer to the human-readable digest at `.sheldon/brain/README.md`. |
 | `/sheldon:brain-dedup [--threshold <float>] [--type <type>]` | Scan the brain for near-duplicate entries within each type group and report candidate pairs above the overlap threshold (default 0.6). Read-only; to retire a duplicate use `brain_observe` with `supersedes`. |
-| `/sheldon:mission-retro <mission_id>` | Print a one-paragraph narrative postmortem for a terminated mission — what was built, validator outcome, time-to-terminal. Useful for cowork-log entries and human review. |
+| `/sheldon:mission-retro <mission_id>` | Print a one-paragraph narrative postmortem for a terminated mission — what was built, validator outcome, time-to-terminal. |
 
 ## The brain: how Sheldon learns
 
@@ -74,7 +74,7 @@ Sheldon keeps a small persistent learning layer at `.sheldon/brain/` (per projec
 
 - **Conventions** — project-specific facts (build tool, test runner, style rules, file layout).
 - **Lessons** — meta-rules distilled from past mission failures or near-misses (e.g., "quote contract YAML descriptions containing `: `").
-- **Capability proposals** — net-new skills/hooks/scripts/agents the brain has identified as worth shipping; consumed by the cowork loop.
+- **Capability proposals** — net-new skills/hooks/scripts/agents the brain has identified as worth shipping; surfaced via `/sheldon:brain-recall --type proposal` and ready for promotion into missions.
 - **Agent improvements** — proposed tweaks to `agents/*.md` that would have prevented a prior defect. These never auto-apply; the Orchestrator promotes them into normal missions.
 
 The Orchestrator calls `brain_recall` before writing each contract and `/sheldon:brain-learn <id>` after each mission terminates. The Worker calls `brain_recall` before implementing. The Validator does NOT consult the brain — it validates strictly against the contract, so pass/fail stays mechanically reproducible.
