@@ -148,8 +148,8 @@ issues:
       - >-
         Does NOT mutate hooks.json's existing hook entries — only adds a new
         block
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRDHSM5J2AW5TWMREKRVX8SS
 ---
 
 # Epic 01KRDEA0DDB8SMSJEGX6DSTQG0
