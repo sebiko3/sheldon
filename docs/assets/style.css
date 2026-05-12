@@ -394,3 +394,99 @@ footer {
 .t-system {
   color: var(--muted);
 }
+
+/* ── Install ── */
+
+#install {
+  text-align: left;
+}
+
+#install h2 {
+  margin-bottom: 1.5rem;
+}
+
+.install-intro {
+  margin-bottom: 1.5rem;
+  color: var(--fg);
+  max-width: 70ch;
+}
+
+.install-code-wrap {
+  background-color: #040c16;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 0 28px rgba(125, 249, 255, 0.07), inset 0 0 16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  max-width: 720px;
+  margin-bottom: 1.5rem;
+}
+
+.install-code-wrap pre {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 1.5rem 1.75rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--fg);
+  overflow-x: auto;
+}
+
+.install-code-wrap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--accent-dim);
+}
+
+.install-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 70ch;
+  margin-bottom: 0.75rem;
+}
+
+.install-verify {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+/* ── Footer ── */
+
+#footer {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 1.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.footer-credit {
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.footer-nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-nav a {
+  color: var(--muted);
+  font-size: 0.85rem;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.footer-nav a:hover {
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent);
+}

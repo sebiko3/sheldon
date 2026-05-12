@@ -109,10 +109,36 @@ Clean happy-path merge.</span></code></pre>
         </div>
       </div>
     </section>
-    <section id="install"><!-- issue 6 fills this --></section>
+    <section id="install">
+      <div class="container">
+        <h2>Install</h2>
+        <p class="install-intro">Clone the repo anywhere you like. The postinstall script builds the MCP server automatically — <code>npm install</code> is all you need. Then load Sheldon as a Claude Code plugin.</p>
+        <div class="install-code-wrap">
+          <pre><code>git clone https://github.com/sebiko3/sheldon &lt;sheldon-checkout&gt;
+cd &lt;sheldon-checkout&gt;
+npm install
+claude --plugin-dir &lt;sheldon-checkout&gt;</code></pre>
+        </div>
+        <p class="install-note">Replace <code>&lt;sheldon-checkout&gt;</code> with the path where you cloned the repo, e.g. <code>~/sheldon</code>. The <code>postinstall</code> step compiles the MCP server — no separate build command required.</p>
+        <p class="install-verify">Verify your setup at any time: <code>bin/sheldon doctor</code></p>
+      </div>
+    </section>
   </main>
 
-  <footer id="footer"><!-- issue 6 fills this --></footer>
+  <footer id="footer">
+    <div class="container footer-inner">
+      <p class="footer-credit">Sheldon &mdash; multi-agent missions for Claude Code. Released under the <a href="https://github.com/sebiko3/sheldon/blob/main/LICENSE">MIT License</a>.</p>
+      <nav class="footer-nav" aria-label="Project links">
+        <ul>
+          <li><a href="https://github.com/sebiko3/sheldon">GitHub</a></li>
+          <li><a href="https://github.com/sebiko3/sheldon/blob/main/CONTRIBUTING.md">CONTRIBUTING</a></li>
+          <li><a href="https://github.com/sebiko3/sheldon/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT</a></li>
+          <li><a href="https://github.com/sebiko3/sheldon/blob/main/SECURITY.md">SECURITY</a></li>
+          <li><a href="https://github.com/sebiko3/sheldon/blob/main/CHANGELOG.md">CHANGELOG</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
 
   <script src="assets/main.js" defer></script>
 </body>
