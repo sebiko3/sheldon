@@ -10,18 +10,6 @@
     colon-space gotcha; README row added.
   Deps: none.
 
-- skill + script: contract-lint
-  Value: scores a draft contract before approval — counts assertions, flags
-    any whose `description` includes `: ` (gray-matter gotcha), flags assertions
-    without a `check:` (manual is OK but should be intentional), warns when the
-    contract has 0 `check:` lines (no executable validation), warns when
-    assertion ids aren't kebab-case. Output: a short report + non-zero exit on
-    fatal issues.
-  Files: scripts/contract-lint.py (stdlib), skills/contract-lint/SKILL.md.
-  Assertions: script exits 0 on a well-formed contract fixture; exits non-zero
-    on a known-bad fixture; skill+script discoverable from README.
-  Deps: none (stdlib re/yaml-shim).
-
 - script: missions-gc
   Value: lists `aborted` mission branches older than N days (default 14) and
     suggests `git branch -D` for each. Dry-run by default; `--apply` actually
@@ -54,6 +42,22 @@
     output sorted oldest-first; README row.
   Deps: none.
 
+- script: cowork-run-singleton-guard (proposed 2026-05-12)
+  Value: small helper used at the very top of the hourly routine that detects
+    a peer cowork session already mid-run on the same repo (by scanning
+    `.missions/*/state.json` for a non-terminal mission whose `created_at` is
+    within the last ~10 minutes). Lets the second run skip cleanly instead of
+    racing. Concurrent runs were the root cause of mission
+    01KRCRBEQ1HHATB7VMVDHTB8B3 being aborted at 2026-05-12T00:16Z and forced
+    01KRCR9GG78PM3KNHZ0JSPQC2Z to wrestle with a shared `.git/index.lock` on a
+    FUSE mount that prohibits unlink.
+  Files: scripts/cowork-singleton-check.py + a one-liner in
+    docs/cowork-hourly-prompt.md telling the routine to honor exit 2.
+  Assertions: script exits 0 when no peer is detected; exits 2 (skip-signal)
+    when a non-terminal mission younger than 10 min exists; supports
+    `--max-age-minutes <N>`; README mention optional.
+  Deps: none.
+
 # Shipped
 
 - 01KRCNRPNBZNGX1YRZ73N8PWKB (2026-05-12, sha a3ae8c4) skill+script: /sheldon:missions-report
@@ -61,3 +65,12 @@
   14-day throughput, time-to-merge p50/p90/max/mean, rework rate, abort rate,
   recently merged. Stdlib-only Python; safe to run any time. Bundled with a
   `.gitignore` tweak to silence `.claude/settings.local.json`.
+
+- 01KRCR9GG78PM3KNHZ0JSPQC2Z (2026-05-12, sha 8234bd1) skill+script: /sheldon:contract-lint
+  Lint a draft mission contract before approval. Parses the YAML frontmatter,
+  walks the `assertions:` block, and flags the gray-matter colon-space gotcha
+  (description values containing `: ` that aren't quoted — the headline brain
+  lesson), missing executable `check:` lines, duplicate or non-kebab-case ids,
+  and missing descriptions. Bundled with `scripts/fixtures/contract-good.md`
+  and `scripts/fixtures/contract-bad.md` for regression. Stdlib-only Python;
+  exit 1 on errors, 0 on warnings-only.
