@@ -31,6 +31,9 @@ Project-specific facts Sheldon has learned while working here (build tools, test
 
 Meta-rules distilled from past mission outcomes — apply these to future contracts and implementations.
 
+- **epic-promote:dirty-tree** [high] _(evidence: 01KRDF1MCBK80KMCM2BXPSE9M3)_
+  mcp__plugin_sheldon_missions__epic_promote_issue branches the new mission off main and THEN flips the issue status to promoted in .epics/<epic>/epic.md, leaving that file dirty on the mission branch without an entry in touched.list. Worker handoff refuses with contamination error. Mitigation: as Orchestrator, commit the epic.md edit on the mission branch BEFORE calling handoff (it is legitimate mission state — the promotion is the point of the mission). The gray-matter serializer reformats the YAML into folded block scalars, which is cosmetic but expected.
+
 - **fuse:unlink-prohibited** [high] _(evidence: 01KRCR9GG78PM3KNHZ0JSPQC2Z)_
   The cowork session mounts /Users/.../code/sheldon via virtiofs/FUSE with default_permissions, which allows write+rename but prohibits unlink for files created by other sandboxes (and sometimes for files created by git within the same sandbox). Git commands that need to remove .git/index.lock, .git/HEAD.lock, or tmp_obj_* fail with Operation not permitted, leaving stale locks. Workaround: wrap git invocations in a script that python-renames any stale .git/*.lock files out of the way before and after each call. checkout/restore that need to remove worktree files also fail; merging via low-level commit-tree + update-ref + manual .git/HEAD write is reliable.
 
@@ -56,6 +59,12 @@ Proposed or applied tweaks to `agents/*.md`. Workers/Validators should not auto-
 ## Capability proposals
 
 Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Fed into the cowork loop.
+
+- **cowork-singleton-check:parse_iso-non-string** [medium] _(evidence: 01KRDF1MCBK80KMCM2BXPSE9M3)_
+  scripts/cowork-singleton-check.py parse_iso() crashes with AttributeError when state.json has a non-string created_at (e.g., integer timestamp), producing exit 1 + traceback. Add an isinstance(ts, str) guard. Caught by validator on mission 01KRDF1MCBK80KMCM2BXPSE9M3 — non-blocking, but worth a 1-line follow-on.
+
+- **cowork-singleton-check:negative-max-age** [medium] _(evidence: 01KRDF1MCBK80KMCM2BXPSE9M3)_
+  scripts/cowork-singleton-check.py accepts negative --max-age-minutes silently; the cutoff moves into the future and the guard becomes a no-op. Add a > 0 argparse validator. Caught by validator on mission 01KRDF1MCBK80KMCM2BXPSE9M3.
 
 - **cowork:singleton-guard** [high] _(evidence: 01KRCR9GG78PM3KNHZ0JSPQC2Z)_
   Ship a scripts/cowork-singleton-check.py helper invoked at Step 1 of the hourly routine: scans .missions/*/state.json for any mission in a non-terminal phase whose created_at is within --max-age-minutes (default 10). Exit 0 = no peer detected, exit 2 = skip-signal. Routine treats exit 2 as a clean skip with reason=concurrent-run. Prevents the race observed at 2026-05-12T00:11Z (two sessions both picked /sheldon:contract-lint, one was wasted, one struggled with git lock contention on FUSE).
