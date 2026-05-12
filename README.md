@@ -60,6 +60,7 @@ For a step-by-step example of a full mission (happy path + rejection + contamina
 | `/sheldon:epic-list [--status=<status>]` | List all epics and their proposed issues. |
 | `/sheldon:epic-promote <epic_id> <issue_id>` | Promote one epic issue into a real mission (creates a mission in `planning` phase). |
 | `/sheldon:missions-report` | Print a one-screen health snapshot of the mission loop — phase breakdown, throughput, time-to-merge percentiles, rework + abort rate, recently merged. Pure stdlib Python; safe to run any time. |
+| `/sheldon:contract-lint <path>` | Lint a draft mission contract before approval — flags the gray-matter colon-space gotcha, missing executable assertions, duplicate or non-kebab-case ids, and prints assertion counts. Stdlib Python; non-zero exit on errors. |
 | `/sheldon:brain-recall [topic]` | Surface what Sheldon has learned about this project — conventions, lessons, agent improvements, and capability proposals from past missions. |
 | `/sheldon:brain-learn <mission_id>` | After a mission terminates (merge/abort/twice-fail), distill its contract + handoffs + validations into durable brain entries the next mission inherits. |
 | `/sheldon:brain-list` | Dump every active brain entry plus per-type counts; pointer to the human-readable digest at `.sheldon/brain/README.md`. |
