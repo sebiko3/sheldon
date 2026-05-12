@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "description": "Multi-agent Missions orchestration as a Claude Code plugin",
+  "license": "MIT",
   "type": "module",
   "workspaces": [
     "mcp/missions-server",
