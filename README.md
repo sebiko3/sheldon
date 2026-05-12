@@ -118,7 +118,12 @@ Sheldon keeps a small persistent learning layer at `.sheldon/brain/` (per projec
 
 The Orchestrator calls `brain_recall` before writing each contract and `/sheldon:brain-learn <id>` after each mission terminates. The Worker calls `brain_recall` before implementing. The Validator does NOT consult the brain — it validates strictly against the contract, so pass/fail stays mechanically reproducible.
 
-Tools exposed by the MCP server: `mcp__plugin_sheldon_missions__brain_observe`, `mcp__plugin_sheldon_missions__brain_recall`, `mcp__plugin_sheldon_missions__brain_list`. The brain is per-repo; `.sheldon/brain/entries.jsonl` is the source of truth, `.sheldon/brain/README.md` is a regenerated digest for humans.
+Tools exposed by the MCP server: `mcp__plugin_sheldon_missions__brain_observe`, `mcp__plugin_sheldon_missions__brain_recall`, `mcp__plugin_sheldon_missions__brain_list`. The brain lives in two files:
+
+- **`.sheldon/brain/seed.jsonl`** (tracked) — the curated baseline that ships with the plugin and is shared across contributors.
+- **`.sheldon/brain/entries.jsonl`** (gitignored) — per-environment observations the local Orchestrator accumulates via `brain_observe`. Never committed.
+
+`listEntries()` returns the union; `observe()` only ever writes to `entries.jsonl`. Tombstones in `entries.jsonl` can supersede seed entries via last-write-wins fold. `.sheldon/brain/README.md` is a regenerated human-readable digest of the active set.
 
 ## Epics: turning vague briefs into missions
 
@@ -135,17 +140,21 @@ You then promote any subset via `/sheldon:epic-promote <epic_id> <issue_id>`. Ea
 
 | Path | Purpose |
 |------|---------|
-| `.claude-plugin/plugin.json` | Plugin manifest |
-| `settings.json`              | Activates Orchestrator as the main thread |
-| `agents/`                    | Orchestrator / Worker / Validator / Epic Planner definitions |
-| `skills/`                    | Slash commands (`/sheldon:mission-*`, `/sheldon:epic-*`) |
-| `hooks/hooks.json`           | PreToolUse (contract immutability) + PostToolUse (touched-file tracking) + SubagentStop (state-transition log) |
-| `mcp/missions-server/`       | The shared-state MCP server (stdio, TypeScript) — bundled by the plugin install |
-| `tui/`                       | Mission Control terminal UI (Slice 2) |
-| `scripts/hooks/`             | Shell scripts invoked by the hook config |
-| `.missions/<id>/`            | Per-mission state files (state.json, contract.md, handoffs/, validations/, touched.list) |
-| `.epics/<id>/`               | Per-epic proposal files (epic.md with candidate sub-missions) |
-| `.sheldon/brain/`            | Persistent learning layer (entries.jsonl + regenerated README.md digest) |
+| `.claude-plugin/plugin.json`      | Plugin manifest (name/version/license) |
+| `.claude-plugin/marketplace.json` | Single-plugin marketplace manifest — what `claude plugin marketplace add` consumes |
+| `settings.json`                   | Activates Orchestrator as the main thread |
+| `agents/`                         | Orchestrator / Worker / Validator / Epic Planner definitions |
+| `skills/`                         | Slash commands (`/sheldon:mission-*`, `/sheldon:epic-*`, `/sheldon:brain-*`, tooling) |
+| `hooks/hooks.json`                | PreToolUse (contract immutability + pre-merge scope-creep advisory) + PostToolUse (touched-file tracking) + SubagentStop (state-transition log) |
+| `mcp/missions-server/`            | The shared-state MCP server (stdio, TypeScript) — built by `npm install` postinstall |
+| `tui/`                            | Mission Control terminal UI |
+| `scripts/hooks/`                  | Shell scripts invoked by the hook config |
+| `scripts/`                        | Stdlib Python helpers (`missions-report`, `contract-lint`, `mission-retro`, `brain-dedup`, `missions-gc`, `gen-og-image`) |
+| `bin/sheldon`                     | CLI launcher; `bin/sheldon doctor` diagnoses install issues |
+| `.missions/<id>/`                 | Per-mission state files (gitignored) — state.json, contract.md, handoffs/, validations/, touched.list |
+| `.epics/<id>/`                    | Per-epic proposal files (tracked; audit trail) — epic.md with candidate sub-missions |
+| `.sheldon/brain/`                 | Learning layer — `seed.jsonl` (tracked baseline) + `entries.jsonl` (gitignored, per-env) + regenerated README.md digest |
+| `docs/`                           | GitHub Pages landing (`index.html` + `assets/`) plus walkthrough, PLATFORM, RELEASING |
 
 ## Platform
 
@@ -163,6 +172,7 @@ This plugin runs *inside* Claude Code, which uses the user's Claude Pro/Max/Team
 
 ## Community
 
+- **Landing page**: [sebiko3.github.io/sheldon](https://sebiko3.github.io/sheldon/) — overview, animated walkthrough, install instructions (served by GitHub Pages from `docs/`).
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md) — fork/branch/PR workflow, coding conventions, testing expectations.
 - **Code of conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — adopts the Contributor Covenant 2.1.
 - **Security**: [SECURITY.md](SECURITY.md) — please report vulnerabilities via private GitHub security advisory, not public issues.
