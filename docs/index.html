@@ -87,6 +87,53 @@
             <h3>/sheldon: slash commands</h3>
             <p>Drive the entire workflow from the Claude Code chat: <code>/sheldon:mission-new</code>, <code>/sheldon:mission-approve</code>, <code>/sheldon:mission-retro</code>, and more — no context-switching required.</p>
           </article>
+          <article class="card">
+            <h3>Epics</h3>
+            <p>Decompose a vague brief into 3–7 candidate sub-missions. The Epic Planner researches the codebase in parallel and writes <code>.epics/&lt;id&gt;/epic.md</code> for review. Promote any subset into real missions with <code>/sheldon:epic-promote</code>.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section id="commands">
+      <div class="container">
+        <h2>Slash commands at a glance</h2>
+        <div class="commands-grid">
+          <div class="cmd-group">
+            <h3 class="cmd-group-label">Mission lifecycle</h3>
+            <ul class="cmd-list">
+              <li><code>/sheldon:mission-new</code> &lt;goal&gt; — draft a contract and start a mission</li>
+              <li><code>/sheldon:mission-approve</code> [id] — approve contract and dispatch Worker</li>
+              <li><code>/sheldon:mission-status</code> [id] — show current phase and assertion results</li>
+              <li><code>/sheldon:mission-list</code> [--phase=&lt;phase&gt;] — list missions with optional filter</li>
+              <li><code>/sheldon:mission-abort</code> &lt;id&gt; [reason] — abort an in-flight mission</li>
+              <li><code>/sheldon:mission-retro</code> &lt;id&gt; — retrospective summary of a completed mission</li>
+            </ul>
+          </div>
+          <div class="cmd-group">
+            <h3 class="cmd-group-label">Epics</h3>
+            <ul class="cmd-list">
+              <li><code>/sheldon:epic-new</code> &lt;brief&gt; — decompose a brief into candidate sub-missions</li>
+              <li><code>/sheldon:epic-list</code> — list all epics and their status</li>
+              <li><code>/sheldon:epic-promote</code> &lt;epic_id&gt; &lt;issue_id&gt; — promote an epic item into a real mission</li>
+            </ul>
+          </div>
+          <div class="cmd-group">
+            <h3 class="cmd-group-label">Brain</h3>
+            <ul class="cmd-list">
+              <li><code>/sheldon:brain-recall</code> [topic] — surface relevant lessons from the brain</li>
+              <li><code>/sheldon:brain-learn</code> &lt;id&gt; — extract and store lessons from a completed mission</li>
+              <li><code>/sheldon:brain-list</code> — list all stored brain entries</li>
+              <li><code>/sheldon:brain-dedup</code> [--threshold] [--type] — deduplicate overlapping brain entries</li>
+            </ul>
+          </div>
+          <div class="cmd-group">
+            <h3 class="cmd-group-label">Tooling</h3>
+            <ul class="cmd-list">
+              <li><code>/sheldon:contract-lint</code> &lt;path&gt; — validate a contract file for syntax errors</li>
+              <li><code>/sheldon:missions-report</code> — generate a status report across all missions</li>
+              <li><code>/sheldon:missions-gc</code> [--days &lt;N&gt;] [--apply] — garbage-collect stale mission branches</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
