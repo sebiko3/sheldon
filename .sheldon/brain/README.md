@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **brain-tools:read-only-default** [high] _(evidence: 01KRDHDE59MP45TSBEX5M3VKBY)_
+  Brain-adjacent scripts (brain-dedup, future brain-search/etc) are read-only on .sheldon/brain/ by construction. Mutation happens exclusively through mcp__plugin_sheldon_missions__brain_observe (which routes through brain.ts and appends to entries.jsonl atomically). This invariant is mechanically enforced: never-writes-brain assertion greps for write-mode open calls against brain paths.
+
 - **contract-assertions:fixture-based-behavior** [high] _(evidence: 01KRDH26YJSRHX6M6XCVK2DVDA)_
   When a contract assertion needs to probe a behavior boundary that depends on real-world state (timestamps, branch ages, etc.), build a synthetic fixture in a temp directory instead of relying on extreme flag values. Pattern: mktemp; git init; create synthetic .missions/<id>/state.json with the timestamp/phase you want to probe; invoke the script against the temp dir; assert on stdout. Pinning behavior via fixtures prevents the kind of semantic inversion that killed mission 01KRDGPZY9R0KJHPS4X9ZW7JHS.
 
