@@ -3,7 +3,7 @@
 (function () {
   const STAR_COUNT = 300;
   const MAX_Z = 1000;
-  const SPEED = 8;
+  const SPEED = 2;
   const FOCAL = 600;
   const NEAR_PLANE = 1;
 
