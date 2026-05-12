@@ -74,8 +74,8 @@ issues:
         non-empty markdown on a happy-path merged mission already present in
         .missions/
       - 'README.md table has a new row for /sheldon:mission-retro'
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRDG9FQ1RDVNWCV0EFKW1BCJ
   - id: 4
     title: 'Add /sheldon:missions-gc skill + script for aborted mission branch cleanup'
     rationale: >-

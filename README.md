@@ -64,6 +64,7 @@ For a step-by-step example of a full mission (happy path + rejection + contamina
 | `/sheldon:brain-recall [topic]` | Surface what Sheldon has learned about this project — conventions, lessons, agent improvements, and capability proposals from past missions. |
 | `/sheldon:brain-learn <mission_id>` | After a mission terminates (merge/abort/twice-fail), distill its contract + handoffs + validations into durable brain entries the next mission inherits. |
 | `/sheldon:brain-list` | Dump every active brain entry plus per-type counts; pointer to the human-readable digest at `.sheldon/brain/README.md`. |
+| `/sheldon:mission-retro <mission_id>` | Print a one-paragraph narrative postmortem for a terminated mission — what was built, validator outcome, time-to-terminal. Useful for cowork-log entries and human review. |
 
 ## The brain: how Sheldon learns
 
