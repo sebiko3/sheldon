@@ -143,3 +143,144 @@ footer {
   outline-offset: 3px;
   border-radius: 2px;
 }
+
+/* ── Hero ── */
+
+#hero {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1rem;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+#hero h1 {
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 30px var(--accent), 0 0 60px rgba(125, 249, 255, 0.4), 0 0 120px rgba(125, 249, 255, 0.15);
+}
+
+.hero-tagline {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  color: var(--accent-dim);
+  max-width: 50ch;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}
+
+.hero-body {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.75;
+}
+
+.cta-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.75rem 2rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, text-shadow 0.2s;
+  box-shadow: 0 0 12px rgba(125, 249, 255, 0.2);
+}
+
+.cta-btn:hover {
+  background-color: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 24px rgba(125, 249, 255, 0.5);
+  text-shadow: none;
+}
+
+/* ── How it works ── */
+
+#how-it-works {
+  text-align: center;
+}
+
+#how-it-works h2 {
+  margin-bottom: 3rem;
+}
+
+.pipeline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.role {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.5rem 1.25rem;
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.12), inset 0 0 12px rgba(34, 211, 238, 0.04);
+  max-width: 220px;
+  min-width: 160px;
+  flex: 1;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.role:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 28px rgba(125, 249, 255, 0.25);
+}
+
+.role-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+
+.role-model {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.role p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.55;
+}
+
+.flow-arrow {
+  font-size: 1.8rem;
+  color: var(--accent-dim);
+  flex-shrink: 0;
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+}
+
+@media (max-width: 600px) {
+  .pipeline {
+    flex-direction: column;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+
+  .role {
+    max-width: 100%;
+    width: 100%;
+  }
+}

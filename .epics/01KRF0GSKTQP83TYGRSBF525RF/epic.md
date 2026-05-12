@@ -100,8 +100,8 @@ issues:
         A prominent install CTA anchor `<a href="#install">` appears inside
         #hero (`grep -A40 'id="hero"' docs/index.html | grep -q
         'href="#install"'`).
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRF166Z6VR8G0E7SPJKAT9VB
   - id: 5
     title: Feature cards plus animated terminal demo
     rationale: >-
