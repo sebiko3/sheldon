@@ -19,7 +19,8 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:mcp": "npm run build --workspace mcp/missions-server",
-    "clean": "rm -rf mcp/missions-server/dist tui/dist"
+    "clean": "rm -rf mcp/missions-server/dist tui/dist",
+    "postinstall": "npm run build --workspace mcp/missions-server"
   },
   "engines": {
     "node": ">=20"
