@@ -11,6 +11,7 @@ export function pbcopy(text: string): Promise<void> {
 }
 
 export function osNotify(title: string, body: string): void {
+  if (process.platform !== "darwin") return;
   // Best-effort macOS Notification Center notification. Silently ignore
   // failures — the TUI is the source of truth, notifications are a nicety.
   const escaped = (s: string) => s.replace(/"/g, '\\"').replace(/\\/g, "\\\\");

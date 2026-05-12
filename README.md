@@ -128,7 +128,7 @@ You then promote any subset via `/sheldon:epic-promote <epic_id> <issue_id>`. Ea
 
 ## Platform
 
-macOS only. Uses `fs.watch` (APFS-friendly), POSIX paths, optional `osascript` notifications.
+macOS supported today; see [docs/PLATFORM.md](docs/PLATFORM.md) for Linux compatibility status.
 
 ## Environment variables
 
