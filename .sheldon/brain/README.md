@@ -6,6 +6,9 @@ Auto-generated from `.sheldon/brain/entries.jsonl`. Do not edit by hand — use 
 
 Project-specific facts Sheldon has learned while working here (build tools, test runners, style rules, layout).
 
+- **contract-assertions:fixture-based-behavior** [high] _(evidence: 01KRDH26YJSRHX6M6XCVK2DVDA)_
+  When a contract assertion needs to probe a behavior boundary that depends on real-world state (timestamps, branch ages, etc.), build a synthetic fixture in a temp directory instead of relying on extreme flag values. Pattern: mktemp; git init; create synthetic .missions/<id>/state.json with the timestamp/phase you want to probe; invoke the script against the temp dir; assert on stdout. Pinning behavior via fixtures prevents the kind of semantic inversion that killed mission 01KRDGPZY9R0KJHPS4X9ZW7JHS.
+
 - **mission-state-json:validation-tallies** [high] _(evidence: 01KRDG9FQ1RDVNWCV0EFKW1BCJ)_
   .missions/<id>/state.json validation_runs[] contains verdict pre-extracted by the orchestrator. Scripts reading mission outcomes can use it as the authoritative tally source — no need to also parse validations/*.md, which contain only the findings prose.
 
