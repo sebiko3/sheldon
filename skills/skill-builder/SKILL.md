@@ -48,9 +48,10 @@ A Sheldon skill is a single markdown file at
 - **No emojis anywhere in the body.** Sheldon's experience is that emojis
   in a SKILL.md compete for the LLM's attention with the instructions and
   measurably degrade skill discovery and adherence. The linter rejects them.
-- **No footer attribution.** Sheldon skills do not carry `Generated with
-  Claude` or `Co-Authored-By:` footers — attribution lives in the project
-  README, not in skills.
+- **No footer attribution.** Sheldon skills do not carry a generated-by-AI
+  footer or a co-author trailer at the bottom of the file. Attribution
+  lives in the project README, not in skills. The linter rejects both
+  forms; see `scripts/skill-lint.py` for the exact strings.
 
 Optional frontmatter keys you may see in existing skills: `argument-hint`
 (a short string shown next to the command), `name` (an explicit skill name;
