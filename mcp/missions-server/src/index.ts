@@ -194,23 +194,30 @@ server.registerTool("epic_promote_issue", {
 
 server.registerTool("brain_observe", {
   description:
-    "Record a learned fact in Sheldon's brain (`.sheldon/brain/entries.jsonl`). `type` is one of convention | lesson | proposal | agent-improvement. `topic` is a short tag for retrieval (e.g. \"yaml-frontmatter\", \"agent:worker\", \"tests\"). `text` is the rule/fact in one paragraph. `evidence` optionally points to the mission_id or commit that taught the lesson. `supersedes` optionally retires an older entry by id. Any role may call this; observations persist across missions and projects.",
+    "Record a learned fact in Sheldon's brain (`.sheldon/brain/entries.jsonl`). `type` is one of convention | lesson | proposal | agent-improvement | strategy. `topic` is a short tag for retrieval (e.g. \"yaml-frontmatter\", \"agent:worker\", \"tests\"). `text` is the rule/fact in one paragraph. `evidence` optionally points to the mission_id or commit that taught the lesson. `supersedes` optionally retires an older entry by id. For type=strategy, `outcome` is required: {validator_passes_first_try, rework_loops, mission_id} — emit one when a mission validated on the first worker round. Any role may call this; observations persist across missions and projects.",
   inputSchema: {
-    type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]),
+    type: z.enum(["convention", "lesson", "proposal", "agent-improvement", "strategy"]),
     topic: z.string().min(1),
     text: z.string().min(1),
     evidence: z.string().optional(),
     confidence: z.enum(["low", "medium", "high"]).optional(),
     supersedes: z.string().optional(),
+    outcome: z
+      .object({
+        validator_passes_first_try: z.boolean(),
+        rework_loops: z.number().int().nonnegative(),
+        mission_id: z.string().min(1),
+      })
+      .optional(),
   },
 }, async (args) => handleBrainObserve(args));
 
 server.registerTool("brain_recall", {
   description:
-    "Retrieve relevant brain entries. Filter by `type` and/or `topic` (case-insensitive substring match across topic+text, multi-word AND). `limit` caps results. Returns entries newest-first with superseded ones already filtered out. Use this at the start of a mission to load project conventions and prior lessons.",
+    "Retrieve relevant brain entries. Filter by `type` (convention | lesson | proposal | agent-improvement | strategy) and/or `topic` (case-insensitive substring match across topic+text, multi-word AND). `limit` caps results. Strategy queries are ranked by first-try pass rate (then by lower rework_loops); other types return newest-first. Superseded entries are filtered out. Use this at the start of a mission to load project conventions, prior lessons, and empirically successful strategies.",
   inputSchema: {
     topic: z.string().optional(),
-    type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]).optional(),
+    type: z.enum(["convention", "lesson", "proposal", "agent-improvement", "strategy"]).optional(),
     limit: z.number().int().positive().optional(),
   },
 }, async (args) => handleBrainRecall(args));

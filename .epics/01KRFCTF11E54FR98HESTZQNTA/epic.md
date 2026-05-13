@@ -148,8 +148,8 @@ issues:
         brain_recall ranks strategies by first-try pass rate when queried with a
         topic
       - MCP tool surface unchanged for non-strategy entries; backward compatible
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRG0W6KQKZDH097T1KZQM1VG
   - id: 7
     title: Add a checkpoint primitive so mission state survives Claude Code crashes
     rationale: >-
