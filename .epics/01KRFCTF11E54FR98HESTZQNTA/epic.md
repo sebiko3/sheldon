@@ -77,8 +77,8 @@ issues:
       - >-
         Validator findings on intermediate failures feed back into the next
         worker spawn automatically, with a configurable loop cap
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRFZVRDS8RM3KJ3Y2CY5FYN8
   - id: 4
     title: >-
       Adopt pair-programming's driver/navigator pattern as a brainstorming

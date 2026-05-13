@@ -146,6 +146,30 @@ Before spawning the Validator, call `mcp__plugin_sheldon_missions__run_assertion
 2. If `verdict: pass` → call `mcp__plugin_sheldon_missions__merge({ mission_id })` to merge `mission/<id>` into the default branch and transition to `done`. Tell the user the mission shipped, then immediately run `/sheldon:brain-learn <mission_id>` to distill any new conventions/lessons into the brain.
 3. If `verdict: fail` → call `mcp__plugin_sheldon_missions__reopen({ mission_id })` to transition `rejected` → `implementing`. **Re-spawn the Worker** with the validator's findings included verbatim in the prompt. The Worker will fix and re-handoff. Loop. After the second consecutive fail, abort the mission and run `/sheldon:brain-learn <mission_id>` — a twice-failing contract is itself a lesson worth preserving.
 
+## Pipeline mode
+
+Pipeline mode chains every per-step skill into a single Orchestrator-driven
+end-to-end run. See `skills/mission-pipeline/SKILL.md` for the full
+procedure. The chain order is `create` → `write_contract` → `approve` →
+Worker `handoff` → `start_validation` → Validator `validate` → `merge` →
+`brain-learn`. Each phase consumes the prior phase's output; the first
+unrecoverable failure halts the chain and surfaces the error (or validator
+findings) verbatim to the user.
+
+On validator `fail`, `mission-pipeline` does not halt immediately — it
+`reopen`s, re-spawns the Worker with the validator findings injected
+verbatim into the next worker brief, and loops. The rework loop is bounded
+by `max_reworks` (default 2, configurable per invocation). When the cap is
+exhausted, the pipeline halts, surfaces the latest findings, and leaves the
+mission in `rejected` so the user can intervene; `brain-learn` still runs.
+
+Pipeline mode is **opt-in**. The per-step skills (`/sheldon:mission-new`,
+`/sheldon:mission-approve`, `/sheldon:brain-learn`) keep working
+standalone for reviews, partial runs, and resumes. Pipeline mode does not
+modify Worker or Validator behaviour — it is purely an Orchestrator-side
+sequencer over the existing intent-block / handoff / `start_validation`
+flow documented above.
+
 ## Tooling discipline
 
 - **You never run feature-implementation Bash commands** (no `npm install`, no `vitest run`, no `git commit -m "feat: ..."`). That's the Worker's job. You may use Bash for read-only inspection (`git log`, `ls`, `cat`) when planning.
