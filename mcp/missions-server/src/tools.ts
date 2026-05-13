@@ -414,6 +414,55 @@ export async function handleEpicPromoteIssue(input: z.infer<typeof epicPromoteIs
   return ok({ mission_id: missionId, epic_id: input.epic_id, issue_id: input.issue_id });
 }
 
+// ── resume (read latest checkpoint, suggest next action) ─────────────────────
+// Used by the Orchestrator after a Claude Code crash. Checkpoints are sidecar
+// files written by scripts/hooks/checkpoint.sh on each SubagentStop; this
+// handler reads the highest-numbered one and returns a next-action hint based
+// on the mission's current phase.
+export const resumeInput = z.object({ mission_id: z.string() });
+export async function handleResume(input: z.infer<typeof resumeInput>) {
+  const state = loadMission(input.mission_id);
+  const { readdirSync, readFileSync, existsSync } = await import("node:fs");
+  const path = await import("node:path");
+  const { missionDir } = await import("./paths.js");
+  const dir = path.join(missionDir(input.mission_id), "checkpoints");
+
+  let last_checkpoint: unknown = null;
+  if (existsSync(dir)) {
+    const files = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .sort(); // zero-padded NNN.json sorts lexicographically == numerically
+    const latest = files[files.length - 1];
+    if (latest) {
+      try {
+        last_checkpoint = JSON.parse(readFileSync(path.join(dir, latest), "utf8"));
+      } catch {
+        last_checkpoint = null;
+      }
+    }
+  }
+
+  const hints: Record<string, string> = {
+    planning: "rewrite or approve the contract via write_contract / approve",
+    contract_review: "rewrite or approve the contract via write_contract / approve",
+    implementing: "re-spawn the worker; last checkpoint shows phase=implementing",
+    handed_off: "call start_validation then spawn the validator",
+    validating: "re-run run_assertions and re-spawn the validator",
+    validated: "call merge",
+    rejected: "call reopen, then re-spawn the worker with prior findings",
+    done: "terminal; nothing to do",
+    aborted: "terminal; nothing to do",
+  };
+  const next_action_hint = hints[state.phase] ?? "inspect the mission state manually";
+
+  return ok({
+    mission_id: state.id,
+    phase: state.phase,
+    last_checkpoint,
+    next_action_hint,
+  });
+}
+
 // ── diff (helper for validator) ──────────────────────────────────────────────
 export const diffInput = z.object({ mission_id: z.string() });
 export async function handleDiff(input: z.infer<typeof diffInput>) {

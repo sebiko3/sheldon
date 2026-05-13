@@ -17,7 +17,8 @@
       "mcp__plugin_sheldon_missions__epic_create",
       "mcp__plugin_sheldon_missions__epic_read",
       "mcp__plugin_sheldon_missions__epic_list",
-      "mcp__plugin_sheldon_missions__epic_promote_issue"
+      "mcp__plugin_sheldon_missions__epic_promote_issue",
+      "mcp__plugin_sheldon_missions__resume"
     ]
   },
   "statusLine": {

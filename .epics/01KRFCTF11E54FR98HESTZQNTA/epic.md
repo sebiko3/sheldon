@@ -172,8 +172,8 @@ issues:
       - >-
         Documented in agents/orchestrator.md under a new 'Resuming after a
         crash' section
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRG1EBS47GYPDQRW5QH9KDYF
 ---
 
 # Epic 01KRFCTF11E54FR98HESTZQNTA

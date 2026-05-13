@@ -12,6 +12,7 @@ import {
   handleMerge,
   handleRead,
   handleReopen,
+  handleResume,
   handleRunAssertions,
   handleStartValidation,
   handleValidate,
@@ -163,6 +164,16 @@ server.registerTool(
     inputSchema: { mission_id: z.string() },
   },
   async (args) => handleDiff(args),
+);
+
+server.registerTool(
+  "resume",
+  {
+    description:
+      "Read the most recent checkpoint for a mission and return { mission_id, phase, last_checkpoint, next_action_hint }. Use this after a Claude Code crash instead of reconstructing state from git log + state.json — the SubagentStop hook snapshots the in-flight phase and verdict so resume can tell the Orchestrator exactly which lifecycle step to retry. Caller: orchestrator.",
+    inputSchema: { mission_id: z.string() },
+  },
+  async (args) => handleResume(args),
 );
 
 server.registerTool("epic_create", {
