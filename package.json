@@ -20,6 +20,8 @@
     "build": "npm run build --workspaces --if-present",
     "build:mcp": "npm run build --workspace mcp/missions-server",
     "clean": "rm -rf mcp/missions-server/dist tui/dist",
+    "audit:tools": "python3 scripts/audit-tool-descriptions.py",
+    "prepublishOnly": "npm run build && npm run audit:tools",
     "postinstall": "npm run build --workspace mcp/missions-server"
   },
   "engines": {
