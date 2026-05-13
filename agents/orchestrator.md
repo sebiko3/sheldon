@@ -171,6 +171,21 @@ modify Worker or Validator behaviour — it is purely an Orchestrator-side
 sequencer over the existing intent-block / handoff / `start_validation`
 flow documented above.
 
+## Resuming after a crash
+
+If Claude Code crashes mid-mission (e.g. between a worker handoff and the
+validator finishing), Sheldon's `SubagentStop` hook
+(`scripts/hooks/checkpoint.sh`) has already snapshotted the in-flight mission
+state to `.missions/<id>/checkpoints/<NNN>.json` — a small JSON blob with
+`{mission_id, phase, timestamp, last_validator_verdict?}`. On startup, call
+`mcp__plugin_sheldon_missions__resume({ mission_id })` (find the id via
+`mcp__plugin_sheldon_missions__list`) to get back
+`{ mission_id, phase, last_checkpoint, next_action_hint }`. The
+`next_action_hint` tells you the exact lifecycle step to retry — e.g.
+`handed_off` → "call start_validation then spawn the validator",
+`rejected` → "call reopen, then re-spawn the worker with prior findings".
+Prefer this over hand-reconstructing state from `git log` + `state.json`.
+
 ## Tooling discipline
 
 - **You never run feature-implementation Bash commands** (no `npm install`, no `vitest run`, no `git commit -m "feat: ..."`). That's the Worker's job. You may use Bash for read-only inspection (`git log`, `ls`, `cat`) when planning.
