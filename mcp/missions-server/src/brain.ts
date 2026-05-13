@@ -15,11 +15,23 @@ export const BRAIN_TYPES = [
   "lesson",
   "proposal",
   "agent-improvement",
+  "strategy",
 ] as const;
 export type BrainEntryType = (typeof BRAIN_TYPES)[number];
 
 export const BRAIN_CONFIDENCE = ["low", "medium", "high"] as const;
 export type BrainConfidence = (typeof BRAIN_CONFIDENCE)[number];
+
+// Strategy entries (ReasoningBank-style) carry an outcome tuple recording how
+// the approach fared in validation. Optional on the schema so the four legacy
+// types continue to parse unchanged; handleBrainObserve enforces presence and
+// shape when type === "strategy".
+export const BrainOutcomeSchema = z.object({
+  validator_passes_first_try: z.boolean(),
+  rework_loops: z.number().int().nonnegative(),
+  mission_id: z.string().min(1),
+});
+export type BrainOutcome = z.infer<typeof BrainOutcomeSchema>;
 
 export const BrainEntrySchema = z.object({
   id: z.string(),
@@ -30,6 +42,7 @@ export const BrainEntrySchema = z.object({
   confidence: z.enum(BRAIN_CONFIDENCE).default("medium"),
   created_at: z.string(),
   superseded_by: z.string().optional(),
+  outcome: BrainOutcomeSchema.optional(),
 });
 export type BrainEntry = z.infer<typeof BrainEntrySchema>;
 
@@ -85,6 +98,7 @@ export function observe(input: {
   evidence?: string;
   confidence?: BrainConfidence;
   supersedes?: string;
+  outcome?: BrainOutcome;
 }): BrainEntry {
   ensureBrainDir();
   const entry: BrainEntry = {
@@ -95,6 +109,7 @@ export function observe(input: {
     evidence: input.evidence,
     confidence: input.confidence ?? "medium",
     created_at: new Date().toISOString(),
+    outcome: input.outcome,
   };
   BrainEntrySchema.parse(entry);
   appendFileSync(entriesPath(), JSON.stringify(entry) + "\n");
@@ -144,12 +159,32 @@ export function recall(input?: {
       return terms.every((t) => hay.includes(t));
     });
   }
-  filtered.sort((a, b) => {
-    const byTime = b.created_at.localeCompare(a.created_at);
-    if (byTime !== 0) return byTime;
-    // Tie-breaker: ulid lexicographic order (later ulid sorts higher).
-    return b.id.localeCompare(a.id);
-  });
+  if (input?.type === "strategy") {
+    // ReasoningBank ranking: prefer approaches that worked first-try, then by
+    // fewest rework_loops, then by recency. Entries without an outcome (should
+    // not happen for type=strategy after observe-time validation, but we guard
+    // anyway) sink to the bottom.
+    filtered.sort((a, b) => {
+      const ao = a.outcome;
+      const bo = b.outcome;
+      const aFirst = ao?.validator_passes_first_try === true ? 1 : 0;
+      const bFirst = bo?.validator_passes_first_try === true ? 1 : 0;
+      if (aFirst !== bFirst) return bFirst - aFirst;
+      const aLoops = ao?.rework_loops ?? Number.POSITIVE_INFINITY;
+      const bLoops = bo?.rework_loops ?? Number.POSITIVE_INFINITY;
+      if (aLoops !== bLoops) return aLoops - bLoops;
+      const byTime = b.created_at.localeCompare(a.created_at);
+      if (byTime !== 0) return byTime;
+      return b.id.localeCompare(a.id);
+    });
+  } else {
+    filtered.sort((a, b) => {
+      const byTime = b.created_at.localeCompare(a.created_at);
+      if (byTime !== 0) return byTime;
+      // Tie-breaker: ulid lexicographic order (later ulid sorts higher).
+      return b.id.localeCompare(a.id);
+    });
+  }
   if (input?.limit && input.limit > 0) {
     filtered = filtered.slice(0, input.limit);
   }
@@ -181,6 +216,7 @@ export function regenerateDigest(): string {
     lesson: [],
     proposal: [],
     "agent-improvement": [],
+    strategy: [],
   };
   for (const e of all) groups[e.type].push(e);
 
@@ -215,6 +251,12 @@ export function regenerateDigest(): string {
       title: "Capability proposals",
       intro:
         "Net-new capabilities (skills, hooks, scripts, agents) the brain has identified as worth shipping. Surface via brain_recall --type proposal; promote into missions.",
+    },
+    {
+      type: "strategy",
+      title: "Strategies",
+      intro:
+        "Approach->outcome tuples from missions that validated on the first worker round. brain_recall --type strategy ranks these by first-try pass rate (then by lower rework_loops) so the Orchestrator can lean on patterns that have empirically worked here.",
     },
   ];
 

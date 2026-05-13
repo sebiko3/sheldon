@@ -25,6 +25,7 @@ For each piece of durable knowledge you find, classify it into ONE of:
 - **`lesson`** — a meta-rule for FUTURE missions (e.g., "always quote frontmatter descriptions with `: `"). Triggered by: a validator failure, a contamination event, a rework loop, a near-miss the worker called out.
 - **`proposal`** — a net-new capability worth shipping (skill, hook, script, agent improvement). Triggered by: the mission's handoff or your own reading reveals a repeated chore that could be automated. When the Orchestrator later promotes such a proposal into a real skill, use `/sheldon:skill-builder` to scaffold the SKILL.md with the right conventions baked in.
 - **`agent-improvement`** — a tweak to `agents/orchestrator.md`, `agents/worker.md`, or `agents/validator.md` that would have prevented an issue in this mission. Triggered by: the worker followed instructions and still produced a defect, or the validator missed something a sharper rubric would catch.
+- **`strategy`** — an `approach -> outcome` tuple (ReasoningBank-style) recording how an implementation approach fared in validation. Emit a strategy entry ONLY when the mission validated on the first worker round — that is, the `state.json` `validation_runs[]` array contains exactly one entry with `verdict === "pass"`. Set `outcome.rework_loops = max(0, validation_runs.length - 1)` and `outcome.validator_passes_first_try = true`. The `text` field carries the approach in one paragraph ("how the worker structured the work" — file order, test-first vs spike-first, scope boundaries that held). Skip strategy extraction for aborted, rejected, or rework-loop missions; surface lessons from those instead. Strategy entries are recalled via `brain_recall --type strategy`, which ranks them by first-try pass rate (then by lower rework_loops) so future Orchestrators lean on patterns that empirically worked here.
 
 Be ruthless. Aim for 0–3 high-signal entries, not a dump. Skip anything you already see in `mcp__plugin_sheldon_missions__brain_recall` output (call it first to dedupe). Anything that's just "the worker did the right thing" is not knowledge — it's noise.
 
@@ -34,7 +35,7 @@ For each surviving entry, call:
 
 ```
 mcp__plugin_sheldon_missions__brain_observe({
-  type: "<convention|lesson|proposal|agent-improvement>",
+  type: "<convention|lesson|proposal|agent-improvement|strategy>",
   topic: "<short kebab-or-colon tag, e.g. yaml-frontmatter, agent:worker, tests>",
   text: "<one paragraph, present tense, actionable>",
   evidence: "$ARGUMENTS",   // mission_id
@@ -44,6 +45,25 @@ mcp__plugin_sheldon_missions__brain_observe({
 ```
 
 `confidence: high` only when the evidence is unambiguous (e.g., a failed check that wouldn't have passed without the rule). `low` when it's a hunch from one data point.
+
+For `type: "strategy"` you must also pass `outcome`:
+
+```
+mcp__plugin_sheldon_missions__brain_observe({
+  type: "strategy",
+  topic: "<short tag, e.g. mcp-tooling, schema-first>",
+  text: "<one paragraph describing the approach the worker took>",
+  outcome: {
+    validator_passes_first_try: true,            // first-round pass; required
+    rework_loops: 0,                             // = max(0, validation_runs.length - 1)
+    mission_id: "$ARGUMENTS"
+  },
+  evidence: "$ARGUMENTS",
+  confidence: "<low|medium|high>"
+})
+```
+
+The handler rejects a strategy write with a missing or malformed `outcome` (the error mentions `strategy`/`outcome`). If `validator_passes_first_try` is false — i.e. the mission needed rework — do not emit a strategy entry at all; capture what went wrong as a `lesson` instead.
 
 ## Step 4 — Report
 
@@ -55,6 +75,7 @@ Mission <id> (<phase>): <goal>
   + N lesson(s):      …
   + N proposal(s):    …
   + N agent-imp(s):   …
+  + N strategy(ies):  …
   Brain now: <active> active entries.
 ```
 

@@ -427,15 +427,36 @@ export async function handleDiff(input: z.infer<typeof diffInput>) {
 // Sheldon's persistent learning layer. Append-only JSONL at .sheldon/brain/.
 // Any role may observe; the orchestrator should recall before planning.
 
+export const brainOutcomeInput = z.object({
+  validator_passes_first_try: z.boolean(),
+  rework_loops: z.number().int().nonnegative(),
+  mission_id: z.string().min(1),
+});
+
 export const brainObserveInput = z.object({
-  type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]),
+  type: z.enum(["convention", "lesson", "proposal", "agent-improvement", "strategy"]),
   topic: z.string().min(1),
   text: z.string().min(1),
   evidence: z.string().optional(),
   confidence: z.enum(["low", "medium", "high"]).optional(),
   supersedes: z.string().optional(),
+  outcome: brainOutcomeInput.optional(),
 });
 export async function handleBrainObserve(input: z.infer<typeof brainObserveInput>) {
+  if (input.type === "strategy") {
+    // outcome is optional on the zod schema (so non-strategy types parse without
+    // it) but mandatory for strategy entries. Validate shape strictly and emit
+    // a message containing the strings "strategy" + "outcome" so callers can
+    // recognise the failure mode.
+    const parsed = brainOutcomeInput.safeParse(input.outcome);
+    if (!parsed.success) {
+      fail(
+        `brain_observe: strategy entry requires a complete outcome ` +
+        `{validator_passes_first_try, rework_loops, mission_id}. ` +
+        `Zod error: ${parsed.error.message}`,
+      );
+    }
+  }
   const { observe, regenerateDigest } = await import("./brain.js");
   const entry = observe(input);
   regenerateDigest();
@@ -444,7 +465,7 @@ export async function handleBrainObserve(input: z.infer<typeof brainObserveInput
 
 export const brainRecallInput = z.object({
   topic: z.string().optional(),
-  type: z.enum(["convention", "lesson", "proposal", "agent-improvement"]).optional(),
+  type: z.enum(["convention", "lesson", "proposal", "agent-improvement", "strategy"]).optional(),
   limit: z.number().int().positive().optional(),
 });
 export async function handleBrainRecall(input: z.infer<typeof brainRecallInput>) {
