@@ -160,6 +160,18 @@ You then promote any subset via `/sheldon:epic-promote <epic_id> <issue_id>`. Ea
 
 macOS supported today; see [docs/PLATFORM.md](docs/PLATFORM.md) for Linux compatibility status.
 
+## Statusline
+
+Sheldon ships a Claude Code statusline at `scripts/statusline.mjs`. It renders a single line summarising the most-recently-updated active mission plus the size of the brain:
+
+```
+sheldon | mission:<id-short> phase:<phase> brain:<n> last:<pass|fail|—>
+```
+
+`<id-short>` is the first 8 characters of the mission ULID, `<phase>` is the lifecycle phase, `<n>` is the union of `seed.jsonl` + `entries.jsonl` lines in `.sheldon/brain/`, and `last:` reflects the most recent validator verdict (or an em-dash if none yet). When no mission exists every field falls back to an em-dash.
+
+The script is wired automatically via `.claude/settings.json` (top-level `statusLine` block; `node scripts/statusline.mjs`). It is stdlib-only, never throws, and caches its rendered output for 5 seconds at `.sheldon/cache/statusline.json` so rapid statusline repaints don't re-scan disk on every frame.
+
 ## Environment variables
 
 | Var | Default | Purpose |

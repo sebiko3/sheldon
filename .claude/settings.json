@@ -19,5 +19,9 @@
       "mcp__plugin_sheldon_missions__epic_list",
       "mcp__plugin_sheldon_missions__epic_promote_issue"
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node scripts/statusline.mjs"
   }
 }
