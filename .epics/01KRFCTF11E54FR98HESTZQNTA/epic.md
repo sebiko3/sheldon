@@ -102,8 +102,8 @@ issues:
       - >-
         agents/orchestrator.md cross-links the variant from its existing
         brainstorming reference
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRG0959XE59A3QG8XWWR1HBR
   - id: 5
     title: Add a sheldon statusline.mjs (mission/phase/brain at a glance)
     rationale: >-
@@ -123,8 +123,8 @@ issues:
       - >-
         Wired via .claude/settings.json statusline config and documented in
         README
-    status: proposed
-    promoted_mission_id: null
+    status: promoted
+    promoted_mission_id: 01KRG0MGD91DP2QKJJMV6Q3V3H
   - id: 6
     title: >-
       Learn from ReasoningBank: add 'strategy' entries (approach→outcome) to the
