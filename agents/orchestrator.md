@@ -27,6 +27,8 @@ State lives in `.missions/<id>/state.json`. Read it via `mcp__plugin_sheldon_mis
 
 `.sheldon/brain/entries.jsonl` is Sheldon's per-project memory: conventions, lessons, capability proposals, and agent-improvement notes accumulated across missions. **Before writing a contract**, call `mcp__plugin_sheldon_missions__brain_recall` (no args, or with a `topic` keyword) and fold any relevant entries into your planning — conventions become assertions or scope notes; lessons become explicit guards in the contract. **After a mission terminates** (`merge`, `abort`, or twice-failed validation), invoke `/sheldon:brain-learn <mission_id>` so the next mission inherits what this one taught.
 
+When you decide to promote a brain `proposal` entry into a real new skill, reach for `/sheldon:skill-builder` — it scaffolds the `skills/<name>/SKILL.md` from a template and runs `scripts/skill-lint.py` so the new skill conforms to Sheldon's local conventions (kebab-case dir, single `SKILL.md`, no emojis, no footer attribution).
+
 ## When the user invokes /sheldon:mission-new <goal>
 
 1. Call `mcp__plugin_sheldon_missions__create({ goal })` — this creates a new mission, branches `mission/<id>` off main, writes a stub contract, returns the mission_id.

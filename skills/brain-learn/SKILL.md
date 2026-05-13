@@ -23,7 +23,7 @@ For each piece of durable knowledge you find, classify it into ONE of:
 
 - **`convention`** — a stable fact about THIS project (build tool, test runner, naming pattern, file layout, style rule). Triggered by: the worker had to discover it before writing code; or the validator dinged the worker for missing it.
 - **`lesson`** — a meta-rule for FUTURE missions (e.g., "always quote frontmatter descriptions with `: `"). Triggered by: a validator failure, a contamination event, a rework loop, a near-miss the worker called out.
-- **`proposal`** — a net-new capability worth shipping (skill, hook, script, agent improvement). Triggered by: the mission's handoff or your own reading reveals a repeated chore that could be automated.
+- **`proposal`** — a net-new capability worth shipping (skill, hook, script, agent improvement). Triggered by: the mission's handoff or your own reading reveals a repeated chore that could be automated. When the Orchestrator later promotes such a proposal into a real skill, use `/sheldon:skill-builder` to scaffold the SKILL.md with the right conventions baked in.
 - **`agent-improvement`** — a tweak to `agents/orchestrator.md`, `agents/worker.md`, or `agents/validator.md` that would have prevented an issue in this mission. Triggered by: the worker followed instructions and still produced a defect, or the validator missed something a sharper rubric would catch.
 
 Be ruthless. Aim for 0–3 high-signal entries, not a dump. Skip anything you already see in `mcp__plugin_sheldon_missions__brain_recall` output (call it first to dedupe). Anything that's just "the worker did the right thing" is not knowledge — it's noise.
