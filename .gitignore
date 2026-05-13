@@ -10,5 +10,8 @@ dist/
 # Per-environment brain observations stay local; seed.jsonl ships with the plugin.
 .sheldon/brain/entries.jsonl
 
+# Statusline TTL cache — regenerated on demand by scripts/statusline.mjs.
+.sheldon/cache/
+
 # Claude Code writes a per-user permissions cache here. Not project state.
 .claude/settings.local.json
