@@ -1,5 +1,5 @@
 ---
-name: "sheldon:pair-brainstorming"
+name: sheldon:pair-brainstorming
 description: Invoke from the Orchestrator BEFORE writing a mission's validation contract for high-ambiguity missions when a single-voice brainstorm would miss edge cases; runs a driver/navigator pair-programming loop where the driver proposes each assertion and the navigator critiques, with roles swapping after every proposed assertion. Triggered by phrasings like "pair brainstorm", "driver navigator", "high-ambiguity contract", or "I want a second voice on this mission". Outputs design context directly into the contract.md body via write_contract, not into a separate design doc.
 ---
 
